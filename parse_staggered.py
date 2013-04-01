@@ -14,7 +14,6 @@ def create_npy(dat):
     '''Create polespace propagator data structure.'''
     
     ar = np.array(dat)  # One dimensional.
-    print ar.shape
     ar = ar.reshape(16,16,3,3)  # A_{ijab}; rightmost index "fastest".
     ar = ar.transpose((0,2,1,3)) # A_{iajb}.
     ar = ar.reshape(48,48) # A_{ia,jb} (Direct product form.)
@@ -41,7 +40,7 @@ def main(argv):
         cnums = map(parse_xml, xmldoc.getElementsByTagName('elem'))
 
         a = create_npy(cnums)
-        print a
+        np.save(target, a)
 
         print arg, 'has been parsed.'
         
