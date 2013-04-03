@@ -18,23 +18,33 @@ def plot_correlator(cfnc):
     p.errorbar(range(96), ave.real,sigma.real, fmt='k-')
     p.show()
     
-def plot_effmass(cfnc):
-    pass
-    
 def naive_effmass(cfnc):
     '''Compute effective mass of correlation function.'''
-    pass
+    cplus = np.roll(cfnc, 1, axis=1).real
+    return np.abs(np.log(cfnc/cplus))
     
+def plot_effmass(cfnc):
+    effmass = naive_effmass(cfnc)
+    ave, sigma = effmass[0], JKsigma(effmass)
+    p.figure()
+    p.xlabel('$t$')
+    p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
+    p.errorbar(range(96), ave, sigma, fmt='ko')
+    p.show()
     
 def main():
     ms = 0.0495
     wall = OverlapWall(0.55, ms)
     point = OverlapPoint(0.551, ms)
     
-    plot_correlator(wall.pscalar)
-    plot_correlator(point.pscalar)
-    plot_correlator(wall.vector)
-    plot_correlator(point.vector)
-
+#    plot_correlator(wall.pscalar)
+#    plot_correlator(point.pscalar)
+#    plot_correlator(wall.vector)
+#    plot_correlator(point.vector)
+    plot_effmass(wall.pscalar)
+    plot_effmass(point.pscalar)
+    plot_effmass(wall.vector)
+    plot_effmass(point.vector)
+    
 if __name__ == "__main__":
     main()
