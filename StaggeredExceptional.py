@@ -1,4 +1,5 @@
 import numpy as np
+import staggered_NPR as npr
 
 root = '/Users/atlytle/Documents/staggered_data/'
 
@@ -11,10 +12,21 @@ class StaggeredExceptional:
                                                              self.pstring)
         self.prop_list = [np.load(self.prop_location(gf))
                           for gf in gflist]
+        
+        self.prop, self.propJK = npr.JKcompute(lambda x: np.average(x, axis=0),
+                                               self.prop_list)
 
     def prop_location(self, gf):
         '''Location of polespace propagators.'''
         name = 'pole_{0}_{1}.npy'.format(self.pstring, gf)
         
         return self.root + name
+        
+    def Zq(self):
+        '''Zq calculated from the propagator (RI' scheme).'''
+        pass
+        
+    def M(self):
+        '''Mass term calculated from the propagator.'''
+        pass
     

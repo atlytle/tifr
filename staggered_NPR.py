@@ -108,9 +108,9 @@ def polespaceM(S, F):
     P(S,F)_{A,B} == H(S,F)_{CD} S(A,B)_{CD}.'''
     
     H = hypercubicM(S,F)
-    tmp = np.array([[np.sum(H*sfunM(A,B)) for B in range(16)]
-                                          for A in range(16)])
-    return (1./16)*tmp
+    tmp = (1./16)*np.array([[np.sum(H*sfunM(A,B)) for B in range(16)]
+                                                  for A in range(16)])
+    return np.kron(tmp, np.identity(3)) # Color dof.
     
 # Some stats stuff.
 def JKsample(list):
@@ -122,6 +122,10 @@ def JKsample(list):
         xs.append(x)
         list = xs
     return sample
+    
+def JKcompute(f, samples):
+    '''Perform computation 'f' on the samples and JKsamples.'''
+    return f(samples), map(f, JKsample(samples))
 
 def JKsigma(JKvals, ave):
     N = len(JKvals)
@@ -136,6 +140,11 @@ def bootstrap_sample(data, N):
     for foo in range(N):
         sample.append([data[ri(0, L-1)] for bar in range(L)])
     return sample
+    
+# Measurements.
+def ps_trace(S, F, M):
+    '''Trace M with polespace matrix.'''
+    return (1./48)*trace(dot(polespaceM(S,F), M))
                       
 def test():
     print 'calculating polespace naive'
