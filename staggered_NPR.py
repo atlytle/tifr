@@ -2,7 +2,6 @@ import numpy as np
 from numpy import dot, trace
 
 # Define gamma matrices.
-
 gamma = [None, None, None, None]
 
 gamma[0] = np.array([[0, 0, 0, 1j],
@@ -29,7 +28,6 @@ id4 = np.identity(4, dtype=complex)
 
 
 # QDP enumeration of gamma matrices.
-
 def hc(M):
     "Hermitian conjugate."
     return np.conjugate(np.transpose(M))
@@ -67,7 +65,6 @@ def Gamma(n):
 G = [Gamma(n) for n in range(16)]
 
 # Hypercubic matrices.
-
 def hypercubic(S, F, A, B):
     '''Hypercubic matrix elements.'''
     return (1./4)*trace(reduce(dot, [hc(G[A]), G[S], G[B], hc(G[F])]))
@@ -78,7 +75,6 @@ def hypercubicM(S, F):
                       for A in range(16)])
 
 # Helper functions.
-           
 def dotp(A,B):
     return np.dot(dtob4(A), dtob4(B))
     
@@ -96,7 +92,6 @@ def sfunM(A,B):
     return np.cos(np.pi*tmp)
     
 # Polespace matrices.
-    
 def polespace(S, F, A, B):
     '''Naive implementation of polespace matrix elements.'''
     result = 0.
@@ -116,6 +111,31 @@ def polespaceM(S, F):
     tmp = np.array([[np.sum(H*sfunM(A,B)) for B in range(16)]
                                           for A in range(16)])
     return (1./16)*tmp
+    
+# Some stats stuff.
+def JKsample(list):
+    '''Yield the jackknife samples of the elements in list.'''
+    sample = []
+    for dummy in range(len(list)):
+        x, xs = list[0], list[1:]
+        sample.append(xs[:])
+        xs.append(x)
+        list = xs
+    return sample
+
+def JKsigma(JKvals, ave):
+    N = len(JKvals)
+    diffs = [(JKval - ave)*(JKval - ave) for JKval in JKvals]
+    return np.sqrt(sum(diffs)*(1-1./N))
+
+def bootstrap_sample(data, N):
+    '''Yield N boostrap samples of the elements in data.'''
+    ri = random.randint
+    L = len(data)
+    sample = []
+    for foo in range(N):
+        sample.append([data[ri(0, L-1)] for bar in range(L)])
+    return sample
                       
 def test():
     print 'calculating polespace naive'

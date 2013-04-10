@@ -37,14 +37,14 @@ def main():
     wall = OverlapWall(0.55, ms)
     point = OverlapPoint(0.551, ms)
     
-#    plot_correlator(wall.pscalar)
-#    plot_correlator(point.pscalar)
-#    plot_correlator(wall.vector)
-#    plot_correlator(point.vector)
-    plot_effmass(wall.pscalar)
-    plot_effmass(point.pscalar)
-    plot_effmass(wall.vector)
-    plot_effmass(point.vector)
+    plot_correlator(wall.pscalar)
+    plot_correlator(point.pscalar)
+    plot_correlator(wall.vector)
+    plot_correlator(point.vector)
+#    plot_effmass(wall.pscalar)
+#    plot_effmass(point.pscalar)
+#    plot_effmass(wall.vector)
+#    plot_effmass(point.vector)
     
 if __name__ == "__main__":
     main()
