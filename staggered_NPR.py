@@ -127,7 +127,7 @@ def JKcompute(f, samples):
     '''Perform computation 'f' on the samples and JKsamples.'''
     return f(samples), map(f, JKsample(samples))
 
-def JKsigma(JKvals, ave):
+def JKsigma(ave, JKvals):
     N = len(JKvals)
     diffs = [(JKval - ave)*(JKval - ave) for JKval in JKvals]
     return np.sqrt(sum(diffs)*(1-1./N))
@@ -140,6 +140,9 @@ def bootstrap_sample(data, N):
     for foo in range(N):
         sample.append([data[ri(0, L-1)] for bar in range(L)])
     return sample
+    
+# Momentum definitions.
+
     
 # Measurements.
 def ps_trace(S, F, M):
