@@ -18,6 +18,14 @@ def plot_correlator(cfnc):
     p.errorbar(range(96), ave.real,sigma.real, fmt='k-')
     p.show()
     
+def fold(cfnc):
+    '''Fold correlators around the mid-point.'''
+    T = len(cfnc[0])
+    assert (T % 2 == 0)  
+    c = cfnc[:,1:]  # Remove separation=0 point. 
+    c = (c + np.fliplr(c))/2.
+    return c[:,:T/2]  # Second half is now redundant.
+    
 def naive_effmass(cfnc):
     '''Compute effective mass of correlation function.'''
     cplus = np.roll(cfnc, 1, axis=1).real
