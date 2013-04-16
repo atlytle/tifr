@@ -25,11 +25,12 @@ class StaggeredExceptional:
         return self.root + name
         
     def populate_kinematic_variables(self):
-        '''Assign momentum variables: ap, etc.'''
-        p, L, T = self.p, self.L, self.T
+        '''Assign momentum variables: ap, mu, etc.'''
+        p, L, T, a = self.p, self.L, self.T, self.a
         self.ap = (2*np.pi)*np.array([p[0]/L, p[1]/L, p[2]/L,
                                       p[3]/T])
         self.apSq = np.dot(self.ap, self.ap)
+        self.mu = np.sqrt(self.apSq)/a
         self.apHat = map(np.sin, self.ap)
                 
     def Zq(self):
@@ -65,6 +66,7 @@ class StaggeredExceptional:
         return r, npr.JKsigma(r, JK)
         
 class StoutExceptional(StaggeredExceptional):
+    a = 1/1.09  # 1/GeV.
     L, T = 24., 32.
     V = (L**3)*T
     def __init__(self, ensemble, mass, p, gflist):
@@ -72,6 +74,7 @@ class StoutExceptional(StaggeredExceptional):
         self.populate_kinematic_variables()
         
 class HYPExceptional(StaggeredExceptional):
+    a = 0.602  # 1/GeV. (corresponds to am_sea = .01 ensemble)
     L, T = 20., 64.
     V = (L**3)*T
     def __init__(self, ensemble, mass, p, gflist):
