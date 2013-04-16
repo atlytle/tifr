@@ -139,10 +139,7 @@ def bootstrap_sample(data, N):
     sample = []
     for foo in range(N):
         sample.append([data[ri(0, L-1)] for bar in range(L)])
-    return sample
-    
-# Momentum definitions.
-
+    return sample    
     
 # Measurements.
 def ps_trace(S, F, M):

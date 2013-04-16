@@ -41,7 +41,17 @@ class StaggeredExceptional:
         r, JK = calc_Zq(self.prop), map(calc_Zq, self.propJK)
         return r, npr.JKsigma(r, JK)
         
-        
+    def Zq2(self):
+        '''Zq calculated from the propagator (RI' scheme).'''
+        ap = np.sin(self.ap)
+        def calc_Zq(prop):
+            Sinv = (1./2)*inv(prop)  # 1/2 from action def.
+            tr = npr.ps_trace
+            traces = tr(1,0,Sinv), tr(2,0,Sinv), tr(4,0,Sinv), tr(8,0,Sinv)
+            Zinv = np.dot(ap, traces).imag/np.dot(ap, ap)
+            return 1./Zinv
+        r, JK = calc_Zq(self.prop), map(calc_Zq, self.propJK)
+        return r, npr.JKsigma(r, JK)        
         
     def M(self):
         '''Mass term calculated from the propagator.'''

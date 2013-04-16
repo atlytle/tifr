@@ -29,34 +29,60 @@ def parse_args():
             
 def main():
     options = parse_args()
-    props = load_data('s', 0.00357, plist, gflist)
+    props_00357 = load_data('s', 0.00357, plist, gflist)
+    props_01 = load_data('s', 0.01, plist, gflist)
     #print [p.M() for p in props]
     #print ''
     #print [p.Zq()[0] for p in props]
     
-    make_plots(props)
+    make_plots([props_00357, props_01], save=True)
     
     return 0
     
-def make_plots(Data):
+def make_plots(data_list, save=False):
+
+    # Vintage look.
+    fontX = {'family':'monospace'}
+    p.rc('font', **fontX)
+
+    # Plot Zq.
+    legend = ()
     p.figure()
     p.title(r'$\mathtt{Preliminary}$')
-    p.xlabel('$\mathtt{(ap)^2}$')
-    p.ylabel('$\mathtt{Z_q}$')
-    x = [d.apSq for d in Data]
-    y, s = zip(*[d.Zq() for d in Data])
-    p.errorbar(x, y, s, fmt='ks', mfc='none', ms=8)
-    p.show()
+    p.xlabel('$\mathtt{[ap]^2}$')
+    p.ylabel('$\mathtt{Zq}$')
+    for data, f in zip(data_list, ['s','^']):
+        x = [d.apSq for d in data]
+        y, s = zip(*[d.Zq() for d in data])
+        dada = p.errorbar(x, y, s, fmt='k'+f, mfc='none', ms=8, mew=1)
+        legend += dada[0],
+        y, s = zip(*[d.Zq2() for d in data])
+        dada = p.errorbar(x, y, s, fmt='b'+f, mfc='none', mec='blue', ms=8, mew=1)
+        legend += dada[0],
+    p.legend(legend, ('$\mathtt{ap}$', '$\mathtt{sin[ap]}$'), 'best')
+    if save:
+        root = '/Users/atlytle/Dropbox/TeX_docs/stout_NPR/figs/'
+        p.savefig(root + 'Zq_prelim.pdf')
+    else:
+        p.show()
     
+    # Plot M.
+    legend = ()
     p.figure()
     p.title('$\mathtt{Preliminary}$')
-    p.xlabel('$(ap)^2$')
+    p.xlabel('$\mathtt{[ap]^2}$')
     p.ylabel('$\mathtt{M}$')
-    x = [d.apSq for d in Data]
-    y, s = zip(*[d.M() for d in Data])
-    p.errorbar(x, y, s, fmt='k^', mfc='none', ms=8)
-    p.show()
-    
+    for data, f in zip(data_list, ['ks', 'k^']):
+        x = [d.apSq for d in data]
+        y, s = zip(*[d.M() for d in data])
+        dada = p.errorbar(x, y, s, fmt=f, mfc='none', ms=8, mew=1)
+        legend += dada[0],
+    p.legend(legend, ('$\mathtt{am=0.00357}$', '$\mathtt{am=0.01}$'))
+    if save:
+        root = '/Users/atlytle/Dropbox/TeX_docs/stout_NPR/figs/'
+        p.savefig(root + 'M_prelim.pdf')
+    else:
+        p.show()
     
 if __name__ == "__main__":
     sys.exit(main())
