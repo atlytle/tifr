@@ -4,12 +4,16 @@ import pylab as p
 import StaggeredExceptional as se
 import staggered_NPR as sn
 
-plist = [(1,1,1,2), (2,2,2,2), (2,2,2,3), (2,2,2,4), (3,2,2,3),
-         (2,3,3,3), (3,2,3,4), (3,3,3,3)]
-gflist = [100, 200, 300, 400]
+plist_stout = [(1,1,1,2), (2,2,2,2), (2,2,2,3), (2,2,2,4), (3,2,2,3),
+               (2,3,3,3), (3,2,3,4), (3,3,3,3)]
+gflist_stout = [100, 200, 300, 400]
+
+plist_HYP = [(1,1,1,4), (1,1,1,6), (1,2,1,5), (1,2,2,4), (2,1,2,6), 
+             (2,2,2,5), (2,2,2,7), (2,2,2,8), (2,2,2,9), (2,3,2,7)]
+gflist_HYP = [600, 630, 660, 690]
 
 def load_data(ensemble, mass, plist, gflist):
-    return [se.StaggeredExceptional(ensemble, mass, p, gflist)
+    return [se.StoutExceptional(ensemble, mass, p, gflist)
             for p in plist]
             
 def parse_args():
@@ -29,8 +33,10 @@ def parse_args():
             
 def main():
     options = parse_args()
-    props_00357 = load_data('s', 0.00357, plist, gflist)
-    props_01 = load_data('s', 0.01, plist, gflist)
+    props_00357 = load_data('s', 0.00357, plist_stout, gflist_stout)
+    props_01 = load_data('s', 0.01, plist_stout, gflist_stout)
+    props_HYP = load_data('p', 0.01, plist_HYP, gflist_HYP)
+    
     #print [p.M() for p in props]
     #print ''
     #print [p.Zq()[0] for p in props]
@@ -77,7 +83,7 @@ def make_plots(data_list, save=False):
         y, s = zip(*[d.M() for d in data])
         dada = p.errorbar(x, y, s, fmt=f, mfc='none', ms=8, mew=1)
         legend += dada[0],
-    p.legend(legend, ('$\mathtt{am=0.00357}$', '$\mathtt{am=0.01}$'))
+    p.legend(legend, ('am=0.00357', 'am=0.01'))
     if save:
         root = '/Users/atlytle/Dropbox/TeX_docs/stout_NPR/figs/'
         p.savefig(root + 'M_prelim.pdf')

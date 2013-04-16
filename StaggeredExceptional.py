@@ -10,13 +10,8 @@ class StaggeredExceptional:
         self.pstring = '.'.join(map(str, p))
         self.root = '/Users/atlytle/Documents/staggered_data/'\
                     '{0}cluster_props/m{1}/{2}/data/'.format(ensemble, str(mass),
-                                                             self.pstring)
-                                                             
-        self.L, self.T =24., 32.
-        self.ap = (2*np.pi)*np.array([p[0]/self.L, p[1]/self.L, p[2]/self.L,
-                                      p[3]/self.T])
-        self.apSq = np.dot(self.ap, self.ap)
-        self.apHat = map(np.sin, self.ap)
+                                                             self.pstring)                                                     
+
         self.prop_list = [np.load(self.prop_location(gf))
                           for gf in gflist]
         
@@ -29,6 +24,14 @@ class StaggeredExceptional:
         
         return self.root + name
         
+    def populate_kinematic_variables(self):
+        '''Assign momentum variables: ap, etc.'''
+        p, L, T = self.p, self.L, self.T
+        self.ap = (2*np.pi)*np.array([p[0]/L, p[1]/L, p[2]/L,
+                                      p[3]/T])
+        self.apSq = np.dot(self.ap, self.ap)
+        self.apHat = map(np.sin, self.ap)
+                
     def Zq(self):
         '''Zq calculated from the propagator (RI' scheme).'''
         ap = self.ap
@@ -60,4 +63,17 @@ class StaggeredExceptional:
             return npr.ps_trace(0,0,Sinv).real  
         r, JK = calc_M(self.prop), map(calc_M, self.propJK)
         return r, npr.JKsigma(r, JK)
-    
+        
+class StoutExceptional(StaggeredExceptional):
+    L, T = 24., 32.
+    V = (L**3)*T
+    def __init__(self, ensemble, mass, p, gflist):
+        StaggeredExceptional.__init__(self, ensemble, mass, p, gflist)
+        self.populate_kinematic_variables()
+        
+class HYPExceptional(StaggeredExceptional):
+    L, T = 20., 64.
+    V = (L**3)*T
+    def __init__(self, ensemble, mass, p, gflist):
+        StaggeredExceptional.__init__(self, ensemble, mass, p, gflist)
+        self.populate_kinematic_variables() 
