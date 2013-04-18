@@ -1,3 +1,4 @@
+import optparse
 import pylab as p
 import numpy as np
 from numpy import exp, cosh
@@ -11,14 +12,17 @@ def JKsigma(cfnc):
     diffs = (ave-JKvals)*(ave-JKvals)
     return np.sqrt(np.sum(diffs, axis=0)*(1-1./N))
 
-def plot_correlator(cfnc):
+def plot_correlator(cfnc, save=False, name=''):
     ave, sigma = cfnc[0], JKsigma(cfnc)
     p.figure()
     p.xlabel('$t$')
     p.ylabel('$C[t]$')
     p.yscale('log')
     p.errorbar(range(96), ave.real,sigma.real, fmt='k-')
-    p.show()
+    if save:
+        p.savefig(name)
+    else:
+        p.show()
     
 def fit_twopoint(xarr, yarr, earr, T=96.): #might add t1, t2 here
     '''Fit two-point correlator to the cosh form.'''
@@ -64,38 +68,56 @@ def naive_effmass(cfnc, foldQ=False):
     cplus = np.roll(cfnc, 1, axis=1).real
     return np.abs(np.log(cfnc/cplus))
     
-def plot_effmass2(cfnc):
+def plot_effmass2(cfnc, save=False, name=''):
     effmass = cosh_effmass(cfnc)
     ave, sigma = effmass[0], JKsigma(effmass)
     p.figure()
     p.xlabel('$t$')
     p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
     p.errorbar(range(len(ave)), ave, sigma, fmt='ko') # Fix.
-    p.show()
+    if save:
+        p.savefig(name)
+    else:
+        p.show()
     
-def plot_effmass(cfnc):
+def plot_effmass(cfnc, save=False, name=''):
     effmass = naive_effmass(cfnc)
     ave, sigma = effmass[0], JKsigma(effmass)
     p.figure()
     p.xlabel('$t$')
     p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
     p.errorbar(range(96), ave, sigma, fmt='ko')
-    p.show()
+    if save:
+        p.savefig(name)
+    else:
+        p.show()
+        
+def parse_args():
+    parser = optparse.OptionParser()
+    parser.add_option('-p', '--plot', action='store_true', dest='plot',
+                      help = 'Plot results.')
+    parser.add_option('-s', '--save', action='store_true', dest='save',
+                      help = 'Save the plots.')
+    options, args = parser.parse_args()
+    return options
     
 def main():
+    options = parse_args()
+    root = '/Users/atlytle/Dropbox/TIFR/figs/'
+    
     ms = 0.0495
     wall = OverlapWall(0.55, ms)
     point = OverlapPoint(0.551, ms)
     
-    plot_correlator(wall.pscalar)
-#    plot_correlator(point.pscalar)
-#    plot_correlator(wall.vector)
-#    plot_correlator(point.vector)
-#    plot_effmass(wall.pscalar)
-#    plot_effmass2(wall.pscalar)
-#    plot_effmass(point.pscalar)
-#    plot_effmass(wall.vector)
-#    plot_effmass(point.vector)
+    plot_correlator(wall.pscalar, options.save, root+'wall_pscalar_corr.pdf')
+    plot_correlator(point.pscalar, options.save, root+'point_pscalar_corr.pdf')
+    plot_correlator(wall.vector, options.save, root+'wall_vector_corr.pdf')
+    plot_correlator(point.vector, options.save, root+'point_vector_corr.pdf')
+    plot_effmass(wall.pscalar, options.save, root+'wall_pscalar_meff_naive.pdf')
+    #plot_effmass2(wall.pscalar)
+    plot_effmass(point.pscalar, options.save, root+'point_pscalar_meff_naive.pdf')
+    plot_effmass(wall.vector, options.save, root+'wall_vector_meff_naive.pdf')
+    plot_effmass(point.vector, options.save, root+'point_vector_meff_naive.pdf')
     
 if __name__ == "__main__":
     main()
