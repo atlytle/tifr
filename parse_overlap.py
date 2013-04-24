@@ -47,6 +47,9 @@ class OverlapWall:
         with open(self.loc + 'vector_sc.dat') as f:
             self.vector = jackknife_correlators(parse_correlator(f))
             
+        assert self.pscalar.shape == self.vector.shape
+        self.N, self.T = self.pscalar.shape
+            
 class OverlapPoint:
     
     def __init__(self, mc, ms):
@@ -60,6 +63,9 @@ class OverlapPoint:
             self.pscalar = jackknife_correlators(parse_correlator(f))
         with open(self.loc + 'vector_sc.dat') as f:
             self.vector = jackknife_correlators(parse_correlator(f))
+            
+        assert self.pscalar.shape == self.vector.shape
+        self.N, self.T = self.pscalar.shape
         
 
 

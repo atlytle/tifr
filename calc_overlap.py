@@ -26,14 +26,36 @@ def plot_correlator(cfnc, save=False, name=''):
     
 def fit_twopoint(xarr, yarr, earr, T=96.): #might add t1, t2 here
     '''Fit two-point correlator to the cosh form.'''
+    assert xarr.shape == yarr.shape == earr.shape
+    
     fitfunc = lambda p, x: p[0]*(2*exp(-p[1]*T/2.)*cosh(p[1]*(x-T/2.)))
     errfunc = lambda p, x, y, err: (y - fitfunc(p,x))/err
     
     p0 = np.array([0.5, 0.5])  # Initial guess.
     p1, success = leastsq(errfunc, p0, args=(xarr,yarr,earr),
                                    full_output=0)
-    return p1
+    # Calculate chi^2.
+    diffs = [errfunc(p1, x, y, err) for x, y, err in zip(xarr, yarr, earr)]
+    chisq = np.sum(np.power(diffs,2))  # Not normalized.
+    return p1, chisq
 
+def fit_twopoint_cfuns(cfnc, ti, tf, T):
+    '''Fit two-point correlators to cosh form from t_initial to t_final. 
+    
+    Returns (A, m), (sig_A, sig_m), chisq.
+    '''
+    xarr = np.array(range(T))
+    earr = JKsigma(cfnc)  # These are held fixed throughout fitting.
+    vals = [fit_twopoint(xarr[ti:tf], yarr[ti:tf], earr[ti:tf], T)
+            for yarr in cfnc]
+    chisq = vals[0][1]  # Chisq on central value fit.
+    vals = [v[0] for v in vals]  # Parameter values of fits.
+            
+    #print fit_twopoint(xarr[10:40], wall.pscalar.real[0][10:40], earr[10:40])
+    #print np.array(vals)[0]
+    #print JKsigma(np.array(vals))
+    
+    return vals[0], JKsigma(np.array(vals)), chisq
     
 def fold(cfnc):
     '''Fold correlators around the mid-point.'''
@@ -108,16 +130,41 @@ def main():
     ms = 0.0495
     wall = OverlapWall(0.55, ms)
     point = OverlapPoint(0.551, ms)
+
+    p1, err, chisq = fit_twopoint_cfuns(wall.pscalar.real, 10, 40, wall.T)
+    print 'Wall-Point pseudoscalar:'
+    print 'A=', p1[0], '+/-', err[0]
+    print 'm=', p1[1], '+/-', err[1]
+    print 'chisq=', chisq, '\n'
     
-    plot_correlator(wall.pscalar, options.save, root+'wall_pscalar_corr.pdf')
-    plot_correlator(point.pscalar, options.save, root+'point_pscalar_corr.pdf')
-    plot_correlator(wall.vector, options.save, root+'wall_vector_corr.pdf')
-    plot_correlator(point.vector, options.save, root+'point_vector_corr.pdf')
-    plot_effmass(wall.pscalar, options.save, root+'wall_pscalar_meff_naive.pdf')
-    #plot_effmass2(wall.pscalar)
-    plot_effmass(point.pscalar, options.save, root+'point_pscalar_meff_naive.pdf')
-    plot_effmass(wall.vector, options.save, root+'wall_vector_meff_naive.pdf')
-    plot_effmass(point.vector, options.save, root+'point_vector_meff_naive.pdf')
+    p1, err, chisq = fit_twopoint_cfuns(point.pscalar.real, 10, 40, wall.T)
+    print 'Point-Point pseudoscalar:'    
+    print 'A=', p1[0], '+/-', err[0]
+    print 'm=', p1[1], '+/-', err[1]
+    print 'chisq=', chisq, '\n'
+    
+    p1, err, chisq = fit_twopoint_cfuns(wall.vector.real, 10, 40, wall.T)
+    print 'Wall-Point vector:'
+    print 'A=', p1[0], '+/-', err[0]
+    print 'm=', p1[1], '+/-', err[1]
+    print 'chisq=', chisq, '\n'
+    
+    p1, err, chisq = fit_twopoint_cfuns(point.vector.real, 10, 40, wall.T)
+    print 'Point-Point vector:'    
+    print 'A=', p1[0], '+/-', err[0]
+    print 'm=', p1[1], '+/-', err[1]
+    print 'chisq=', chisq, '\n'
+    
+    
+#    plot_correlator(wall.pscalar, options.save, root+'wall_pscalar_corr.pdf')
+#    plot_correlator(point.pscalar, options.save, root+'point_pscalar_corr.pdf')
+#    plot_correlator(wall.vector, options.save, root+'wall_vector_corr.pdf')
+#    plot_correlator(point.vector, options.save, root+'point_vector_corr.pdf')
+#    plot_effmass(wall.pscalar, options.save, root+'wall_pscalar_meff_naive.pdf')
+#    #plot_effmass2(wall.pscalar)
+#    plot_effmass(point.pscalar, options.save, root+'point_pscalar_meff_naive.pdf')
+#    plot_effmass(wall.vector, options.save, root+'wall_vector_meff_naive.pdf')
+#    plot_effmass(point.vector, options.save, root+'point_vector_meff_naive.pdf')
     
 if __name__ == "__main__":
     main()
