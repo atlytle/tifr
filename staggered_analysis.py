@@ -45,18 +45,29 @@ def parse_args():
             
 def main():
     options = parse_args()
-    props_00357 = load_data_stout('s', 0.00357, plist_stout, gflist_stout)
-    props_01 = load_data_stout('s', 0.01, plist_stout, gflist_stout)
-    props_HYP = load_data_HYP('p', 0.01, plist_HYP, gflist_HYP)
-    props_naive = load_data_naive('n', 0.03, plist_naive, gflist_naive)
+    data_00357 = load_data_stout('s', 0.00357, plist_stout, gflist_stout)
+    data_01 = load_data_stout('s', 0.01, plist_stout, gflist_stout)
     
-    #print [p.M() for p in props]
-    #print ''
-    #print [p.Zq2()[0] for p in props_HYP]
-    #print ''
-    #print [p.Zq2()[1] for p in props_HYP]    
-    make_plots([props_00357, props_01], save=False)
-    compare_Zq([props_01, props_HYP, props_naive], save=False)
+
+    print [d.bilinear_Lambda(0,0)[0].real for d in data_00357]
+    print [d.bilinear_Lambda(0,0)[1].real for d in data_00357]
+    print ''
+    print [d.bilinear_Lambda(15,15)[0].real for d in data_00357]
+    print [d.bilinear_Lambda(15,15)[1].real for d in data_00357]
+    
+    print ''
+        
+    print [d.bilinear_Lambda(0,0)[0].real for d in data_01]
+    print [d.bilinear_Lambda(0,0)[1].real for d in data_01]
+    print ''
+    print [d.bilinear_Lambda(15,15)[0].real for d in data_01]
+    print [d.bilinear_Lambda(15,15)[1].real for d in data_01]
+
+    #props_HYP = load_data_HYP('p', 0.01, plist_HYP, gflist_HYP)
+    #props_naive = load_data_naive('n', 0.03, plist_naive, gflist_naive)
+      
+    make_plots([data_00357, data_01], save=False)
+    #compare_Zq([props_01, props_HYP, props_naive], save=False)
     
     return 0
     
@@ -122,6 +133,28 @@ def plot_M(data_list, save=False):
     else:
         p.show()    
         
+def plot_LambdaSP(data_list, save=False):
+    legend = ()
+    p.figure()
+    p.title('$\mathtt{Preliminary}$')
+    p.xlabel('$\mathtt{[ap]^2}$')
+    p.ylabel('$\mathtt{\Lambda{S \otimes F}}$')
+    for data, f in zip(data_list, ['s', '^']):
+        x = [d.apSq for d in data]
+        y, s = zip(*[d.bilinear_Lambda(0,0) for d in data])
+        dada = p.errorbar(x, y, s, fmt='k'+f, mfc='none', ms=8, mew=1)
+        legend += dada[0],
+        y, s = zip(*[d.bilinear_Lambda(15,15) for d in data])
+        dada = p.errorbar(x, y, s, fmt='r'+f, mec='red', mfc='none', ms=8, mew=1)
+        legend += dada[0],
+    p.legend(legend, ('$\mathtt{1 \otimes 1}$', 
+                      '$\mathtt{\gamma_5 \otimes \gamma_5}$'))
+    if save:
+        root = '/Users/atlytle/Dropbox/TeX_docs/stout_NPR/figs/'
+        p.savefig(root + 'LambdaSP_prelim.pdf')
+    else:
+        p.show()     
+        
 def make_plots(data_list, save=False):
 
     # Vintage look.
@@ -133,6 +166,9 @@ def make_plots(data_list, save=False):
     
     # Plot M.
     plot_M(data_list, save)
+    
+    # Plot Lambda_S,P.
+    plot_LambdaSP(data_list, save)
     
 if __name__ == "__main__":
     sys.exit(main())

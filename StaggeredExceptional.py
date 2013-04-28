@@ -17,12 +17,34 @@ class StaggeredExceptional:
         
         self.prop, self.propJK = npr.JKcompute(lambda x: np.average(x, axis=0),
                                                self.prop_list)
+                                               
+        # Initialize bilinear containers.
+        self.bilinear_list = np.array([[None]*16]*16)
+        self.bilinear = np.array([[None]*16]*16)
+        self.bilinearJK = np.array([[None]*16]*16)
+        
+        self.bilinear_list[0,0] = [np.load(self.bilinear_location(0,0,gf))
+                                   for gf in gflist]
+        self.bilinear[0][0], self.bilinearJK[0][0] = npr.JKcompute(
+                lambda x: np.average(x, axis=0), self.bilinear_list[0][0])
+        self.bilinear_list[15,15] = [np.load(self.bilinear_location(15,15,gf))
+                                     for gf in gflist]
+        self.bilinear[15][15], self.bilinearJK[15][15] = npr.JKcompute(
+                lambda x: np.average(x, axis=0), self.bilinear_list[15][15])
+
 
     def prop_location(self, gf):
         '''Location of polespace propagators.'''
         name = 'pole_{0}_{1}.npy'.format(self.pstring, gf)
         
         return self.root + name
+        
+    def bilinear_location(self, S, F, gf):
+        '''Location of bilinear correlation function SxF.'''
+        name = 'bl_{0}_{1}_{2}_{3}.npy'.format(self.pstring, gf, S, F)
+        
+        return self.root + name
+        
         
     def populate_kinematic_variables(self):
         '''Assign momentum variables: ap, mu, etc.'''
@@ -63,6 +85,13 @@ class StaggeredExceptional:
             Sinv = (1./2)*inv(prop)  # 1/2 from action def.
             return npr.ps_trace(0,0,Sinv).real  
         r, JK = calc_M(self.prop), map(calc_M, self.propJK)
+        return r, npr.JKsigma(r, JK)
+    
+    def bilinear_Lambda(self, S, F):
+        '''Trace of amputated bilinear correlation function.'''
+        calc = lambda prop, bl :npr.bilinear_Lambda(prop, bl, S, F)/self.V
+        r, JK = calc(self.prop, self.bilinear[S][F]),\
+                [calc(*x) for x in zip(self.propJK, self.bilinearJK[S][F])]
         return r, npr.JKsigma(r, JK)
         
 class StoutExceptional(StaggeredExceptional):

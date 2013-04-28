@@ -1,5 +1,6 @@
 import numpy as np
 from numpy import dot, trace
+from numpy.linalg import inv
 
 # Define gamma matrices.
 gamma = [None, None, None, None]
@@ -115,6 +116,7 @@ def polespaceM(S, F):
 # Some stats stuff.
 def JKsample(list):
     '''Yield the jackknife samples of the elements in list.'''
+    
     sample = []
     for dummy in range(len(list)):
         x, xs = list[0], list[1:]
@@ -145,6 +147,12 @@ def bootstrap_sample(data, N):
 def ps_trace(S, F, M):
     '''Trace M with polespace matrix.'''
     return (1./48)*trace(dot(polespaceM(S,F), M))
+    
+def bilinear_Lambda(prop, bilinear, S, F):
+    '''Trace of amputated bilinear correlation function.'''
+    iprop = inv(prop)
+    amputated = reduce(dot, [iprop, bilinear, iprop])
+    return ps_trace(S, F, amputated)
                       
 def test():
     print 'calculating polespace naive'

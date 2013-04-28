@@ -32,11 +32,10 @@ def parse_xml(xml):
 
         tmp = node.tag.partition('_')[0]
         if tmp == 'bl' or tmp == 'blNE':  # Look for bl_S_F tags.
-            print tmp
             tmp = node.tag.partition('_')[0]
             tag = node.tag.lstrip(tmp)  # _S_F identifier.
-            target = './data/{0}{1}.dat'.format(basestring, tag)
-            if os.path.isfile(target):
+            target = './data/{0}{1}'.format(basestring, tag)
+            if os.path.isfile(target+'.npy'):
                 suppress += 1
                 if suppress < sup_limit:
                     print target, 'already exists.'
