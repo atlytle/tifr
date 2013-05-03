@@ -1,8 +1,12 @@
 import sys
 import optparse
 import pylab as p
+import numpy as np
 import StaggeredExceptional as se
 import staggered_NPR as sn
+
+ar = np.array
+np.set_printoptions(precision=2, suppress=True)
 
 plist_stout = [(1,1,1,2), (2,2,2,2), (2,2,2,3), (2,2,2,4), (3,2,2,3),
                (2,3,3,3), (3,2,3,4), (3,3,3,3)]
@@ -48,25 +52,54 @@ def main():
     data_00357 = load_data_stout('s', 0.00357, plist_stout, gflist_stout)
     data_01 = load_data_stout('s', 0.01, plist_stout, gflist_stout)
     
-
-    print [d.bilinear_Lambda(0,0)[0].real for d in data_00357]
-    print [d.bilinear_Lambda(0,0)[1].real for d in data_00357]
+    #print [d.ap for d in data_00357]
+#    print ar([d.bilinear_Lambda(1,0)[0].real for d in data_00357])
+#    print ar([d.bilinear_Lambda(1,0)[1].real for d in data_00357])
+#    print ''
+#    print ar([d.bilinear_Lambda(2,0)[0].real for d in data_00357])
+#    print ar([d.bilinear_Lambda(2,0)[1].real for d in data_00357])
+#    print ''
+#    print ar([d.bilinear_Lambda(4,0)[0].real for d in data_00357])
+#    #print [d.bilinear_Lambda(4,0)[1].real for d in data_00357]
+#    print ''
+#    print ar([d.bilinear_Lambda(8,0)[0].real for d in data_00357])
+#    #print [d.bilinear_Lambda(8,0)[1].real for d in data_00357]
+#    print '\n\n'
+    print ar([(2/d.Lambda_V(0)[0].real) for d in data_00357])
+#    #print [d.Lambda_V(0)[1].real for d in data_00357]
     print ''
-    print [d.bilinear_Lambda(15,15)[0].real for d in data_00357]
-    print [d.bilinear_Lambda(15,15)[1].real for d in data_00357]
+    print ar([(2/d.Lambda_V(1)[0].real) for d in data_00357])
+#    #print [d.Lambda_V(1)[1].real for d in data_00357]
+    print ''
+    print ar([(2/d.Lambda_V(2)[0].real) for d in data_00357])
+#    #print [d.Lambda_V(2)[1].real for d in data_00357]
+    print ''
+    print ar([(2/d.Lambda_V(3)[0].real) for d in data_00357])
+    #print [d.Lambda_V(3)[1].real for d in data_00357]
+    print ''
+    print [d.Zq()[0].real for d in data_00357]
+    print ''
+    print [d.Zq2()[0].real for d in data_00357]
     
     print ''
-        
-    print [d.bilinear_Lambda(0,0)[0].real for d in data_01]
-    print [d.bilinear_Lambda(0,0)[1].real for d in data_01]
-    print ''
-    print [d.bilinear_Lambda(15,15)[0].real for d in data_01]
-    print [d.bilinear_Lambda(15,15)[1].real for d in data_01]
+    print [d.bilinear_Lambda(0,0)[0].real for d in data_00357]
+    print [d.bilinear_Lambda(0,0)[1].real for d in data_00357]
+    print [d.bilinear_Z(0,0)[0].real for d in data_00357]
+    print [d.bilinear_Z(0,0)[1].real for d in data_00357]
+    #print ''
+    #print [d.Zq()[0].real for d in data_00357]
+    #print [d.Zq2()[1].real for d in data_00357]
+           
+#    print [d.bilinear_Lambda(0,0)[0].real for d in data_01]
+#    print [d.bilinear_Lambda(0,0)[1].real for d in data_01]
+#    print ''
+#    print [d.bilinear_Lambda(15,15)[0].real for d in data_01]
+#    print [d.bilinear_Lambda(15,15)[1].real for d in data_01]
 
     #props_HYP = load_data_HYP('p', 0.01, plist_HYP, gflist_HYP)
     #props_naive = load_data_naive('n', 0.03, plist_naive, gflist_naive)
       
-    make_plots([data_00357, data_01], save=False)
+    #make_plots([data_00357, data_01], save=False)
     #compare_Zq([props_01, props_HYP, props_naive], save=False)
     
     return 0

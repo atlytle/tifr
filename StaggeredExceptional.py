@@ -23,14 +23,11 @@ class StaggeredExceptional:
         self.bilinear = np.array([[None]*16]*16)
         self.bilinearJK = np.array([[None]*16]*16)
         
-        self.bilinear_list[0,0] = [np.load(self.bilinear_location(0,0,gf))
-                                   for gf in gflist]
-        self.bilinear[0][0], self.bilinearJK[0][0] = npr.JKcompute(
-                lambda x: np.average(x, axis=0), self.bilinear_list[0][0])
-        self.bilinear_list[15,15] = [np.load(self.bilinear_location(15,15,gf))
-                                     for gf in gflist]
-        self.bilinear[15][15], self.bilinearJK[15][15] = npr.JKcompute(
-                lambda x: np.average(x, axis=0), self.bilinear_list[15][15])
+        for S,F in [(0,0), (1,0), (2,0), (4,0), (8,0), (15,15)]:
+            self.bilinear_list[S,F] = [np.load(self.bilinear_location(S,F,gf))
+                                       for gf in gflist]
+            self.bilinear[S,F], self.bilinearJK[S,F] = npr.JKcompute(
+                    lambda x: np.average(x, axis=0), self.bilinear_list[S,F])
 
 
     def prop_location(self, gf):
@@ -58,26 +55,16 @@ class StaggeredExceptional:
     def Zq(self):
         '''Zq calculated from the propagator (RI' scheme).'''
         ap = self.ap
-        def calc_Zq(prop):
-            Sinv = (1./2)*inv(prop)  # 1/2 from action def.
-            tr = npr.ps_trace
-            traces = tr(1,0,Sinv), tr(2,0,Sinv), tr(4,0,Sinv), tr(8,0,Sinv)
-            Zinv = np.dot(ap, traces).imag/np.dot(ap, ap)
-            return 1./Zinv
-        r, JK = calc_Zq(self.prop), map(calc_Zq, self.propJK)
-        return r, npr.JKsigma(r, JK)
+        calc = lambda prop: npr.Zq(prop, ap)
+        r, JK = calc(self.prop), map(calc, self.propJK)
+        return r, npr.JKsigma(r, JK)  
         
     def Zq2(self):
         '''Zq calculated from the propagator (RI' scheme).'''
-        ap = np.sin(self.ap)
-        def calc_Zq(prop):
-            Sinv = (1./2)*inv(prop)  # 1/2 from action def.
-            tr = npr.ps_trace
-            traces = tr(1,0,Sinv), tr(2,0,Sinv), tr(4,0,Sinv), tr(8,0,Sinv)
-            Zinv = np.dot(ap, traces).imag/np.dot(ap, ap)
-            return 1./Zinv
-        r, JK = calc_Zq(self.prop), map(calc_Zq, self.propJK)
-        return r, npr.JKsigma(r, JK)        
+        ap = np.sin(self.ap)    
+        calc = lambda prop: npr.Zq(prop, ap)
+        r, JK = calc(self.prop), map(calc, self.propJK)
+        return r, npr.JKsigma(r, JK)
         
     def M(self):
         '''Mass term calculated from the propagator.'''
@@ -89,9 +76,25 @@ class StaggeredExceptional:
     
     def bilinear_Lambda(self, S, F):
         '''Trace of amputated bilinear correlation function.'''
-        calc = lambda prop, bl :npr.bilinear_Lambda(prop, bl, S, F)/self.V
+        calc = lambda prop, bl: npr.bilinear_Lambda(prop, bl, S, F)/self.V
         r, JK = calc(self.prop, self.bilinear[S][F]),\
                 [calc(*x) for x in zip(self.propJK, self.bilinearJK[S][F])]
+        return r, npr.JKsigma(r, JK)
+        
+    def bilinear_Z(self, S, F):
+        ap = np.sin(self.ap)
+        calc = lambda prop, bl: npr.bilinear_Z(prop, bl, ap, S, F)*self.V
+        r, JK = calc(self.prop, self.bilinear[S][F]),\
+                [calc(*x) for x in zip(self.propJK, self.bilinearJK[S][F])]
+        return r, npr.JKsigma(r, JK)
+        
+    def Lambda_V(self, muhat):
+        '''Traced vector bilinear divided by tree-level value.'''
+        S = 2**muhat
+        calc = lambda prop, bilinear: npr.Lambda_V(prop, bilinear,
+                                                   self.ap, muhat)/self.V
+        r, JK = calc(self.prop, self.bilinear[S][0]),\
+                [calc(*x) for x in zip(self.propJK, self.bilinearJK[S][0])]
         return r, npr.JKsigma(r, JK)
         
 class StoutExceptional(StaggeredExceptional):

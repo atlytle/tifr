@@ -148,11 +148,29 @@ def ps_trace(S, F, M):
     '''Trace M with polespace matrix.'''
     return (1./48)*trace(dot(polespaceM(S,F), M))
     
+def Zq(prop, ap):
+    Sinv = (1./2)*inv(prop) # 1/2 from action def.
+    tr = ps_trace
+    traces = tr(1,0,Sinv), tr(2,0,Sinv), tr(4,0,Sinv), tr(8,0,Sinv)
+    Zinv = np.dot(ap, traces).imag/np.dot(ap, ap)
+    return 1./Zinv
+    
 def bilinear_Lambda(prop, bilinear, S, F):
     '''Trace of amputated bilinear correlation function.'''
     iprop = inv(prop)
     amputated = reduce(dot, [iprop, bilinear, iprop])
     return ps_trace(S, F, amputated)
+    
+def bilinear_Z(prop, bilinear, ap, S, F):
+    '''Bilinear Z-factor in RI' scheme.'''
+    # Should add Cosine factors to make general.
+    return Zq(prop, ap)/bilinear_Lambda(prop, bilinear, S, F)
+    
+def Lambda_V(prop, bilinear, ap, muhat):
+    '''Traced vector bilinear divided by tree-level value.'''
+    S = 2**muhat
+    tr = bilinear_Lambda(prop, bilinear, S, 0)
+    return tr/np.cos(ap[muhat])
                       
 def test():
     print 'calculating polespace naive'
