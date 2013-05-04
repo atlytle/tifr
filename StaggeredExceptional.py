@@ -96,6 +96,15 @@ class StaggeredExceptional:
         r, JK = calc(self.prop, self.bilinear[S][0]),\
                 [calc(*x) for x in zip(self.propJK, self.bilinearJK[S][0])]
         return r, npr.JKsigma(r, JK)
+    
+    def Lambda_Vave(self):
+        calc = lambda prop, bl0, bl1, bl2, bl3:\
+              npr.Lambda_Vave(prop, bl0, bl1, bl2, bl3, self.ap)/self.V
+        bl, blJK = self.bilinear, self.bilinearJK
+        r, JK = calc(self.prop, bl[1,0], bl[2,0], bl[4,0], bl[8,0]),\
+                [calc(*x) for x in zip(self.propJK, blJK[1,0], blJK[2,0],
+                                                    blJK[4,0], blJK[8,0])]
+        return r, npr.JKsigma(r, JK)
         
 class StoutExceptional(StaggeredExceptional):
     a = 1/1.09  # 1/GeV.

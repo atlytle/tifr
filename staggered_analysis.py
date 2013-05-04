@@ -6,7 +6,7 @@ import StaggeredExceptional as se
 import staggered_NPR as sn
 
 ar = np.array
-np.set_printoptions(precision=2, suppress=True)
+np.set_printoptions(precision=3, suppress=True)
 
 plist_stout = [(1,1,1,2), (2,2,2,2), (2,2,2,3), (2,2,2,4), (3,2,2,3),
                (2,3,3,3), (3,2,3,4), (3,3,3,3)]
@@ -52,40 +52,15 @@ def main():
     data_00357 = load_data_stout('s', 0.00357, plist_stout, gflist_stout)
     data_01 = load_data_stout('s', 0.01, plist_stout, gflist_stout)
     
-    #print [d.ap for d in data_00357]
-#    print ar([d.bilinear_Lambda(1,0)[0].real for d in data_00357])
-#    print ar([d.bilinear_Lambda(1,0)[1].real for d in data_00357])
+#    print [d.Zq()[0].real for d in data_00357]
 #    print ''
-#    print ar([d.bilinear_Lambda(2,0)[0].real for d in data_00357])
-#    print ar([d.bilinear_Lambda(2,0)[1].real for d in data_00357])
+#    print [d.Zq2()[0].real for d in data_00357]
+#    
 #    print ''
-#    print ar([d.bilinear_Lambda(4,0)[0].real for d in data_00357])
-#    #print [d.bilinear_Lambda(4,0)[1].real for d in data_00357]
-#    print ''
-#    print ar([d.bilinear_Lambda(8,0)[0].real for d in data_00357])
-#    #print [d.bilinear_Lambda(8,0)[1].real for d in data_00357]
-#    print '\n\n'
-    print ar([(2/d.Lambda_V(0)[0].real) for d in data_00357])
-#    #print [d.Lambda_V(0)[1].real for d in data_00357]
-    print ''
-    print ar([(2/d.Lambda_V(1)[0].real) for d in data_00357])
-#    #print [d.Lambda_V(1)[1].real for d in data_00357]
-    print ''
-    print ar([(2/d.Lambda_V(2)[0].real) for d in data_00357])
-#    #print [d.Lambda_V(2)[1].real for d in data_00357]
-    print ''
-    print ar([(2/d.Lambda_V(3)[0].real) for d in data_00357])
-    #print [d.Lambda_V(3)[1].real for d in data_00357]
-    print ''
-    print [d.Zq()[0].real for d in data_00357]
-    print ''
-    print [d.Zq2()[0].real for d in data_00357]
-    
-    print ''
-    print [d.bilinear_Lambda(0,0)[0].real for d in data_00357]
-    print [d.bilinear_Lambda(0,0)[1].real for d in data_00357]
-    print [d.bilinear_Z(0,0)[0].real for d in data_00357]
-    print [d.bilinear_Z(0,0)[1].real for d in data_00357]
+#    print [d.bilinear_Lambda(0,0)[0].real for d in data_00357]
+#    print [d.bilinear_Lambda(0,0)[1].real for d in data_00357]
+#    print [d.bilinear_Z(0,0)[0].real for d in data_00357]
+#    print [d.bilinear_Z(0,0)[1].real for d in data_00357]
     #print ''
     #print [d.Zq()[0].real for d in data_00357]
     #print [d.Zq2()[1].real for d in data_00357]
@@ -98,8 +73,25 @@ def main():
 
     #props_HYP = load_data_HYP('p', 0.01, plist_HYP, gflist_HYP)
     #props_naive = load_data_naive('n', 0.03, plist_naive, gflist_naive)
-      
-    #make_plots([data_00357, data_01], save=False)
+    
+    #print ar([d.mu for d in data_00357])
+    #print ar([ar(d.bilinear_Z(0,0)).real for d in data_00357])
+    #print ar([d.bilinear_Z(0,0)[0].real for d in data_00357])
+    
+    #print ar([d.Zq2() for d in data_00357])
+    
+#    print ar([d.Lambda_V(0)[0].real for d in data_00357])
+#    print ar([d.Lambda_V(1)[0].real for d in data_00357])
+#    print ar([d.Lambda_V(2)[0].real for d in data_00357])
+#    print ar([d.Lambda_V(3)[0].real for d in data_00357])
+#    print ''
+#    print ar([d.Lambda_Vave()[0].real for d in data_00357])
+#    print ar([d.Lambda_Vave()[1].real for d in data_00357])
+#    
+#    print ar([1/d.Zq2()[0] for d in data_00357])
+    
+    print [d.p for d in data_00357]
+    make_plots([data_00357], save=True)
     #compare_Zq([props_01, props_HYP, props_naive], save=False)
     
     return 0
@@ -188,20 +180,77 @@ def plot_LambdaSP(data_list, save=False):
     else:
         p.show()     
         
+def plot_ZS(data_list, save=False):
+    legend = ()
+    p.figure()
+    p.title('$\mathtt{Preliminary}$')
+    p.xlabel('$\mathtt{\mu \quad [GeV]}$')
+    p.ylabel('$\mathtt{Z_{1 \otimes 1}}$')   
+    for data in data_list:
+        x = [d.mu for d in data]
+        y, s = zip(*[d.bilinear_Z(0,0) for d in data])
+        dada = p.errorbar(x, y, s, fmt='ko', mfc='none', ms=8, mew=1)
+        legend += dada[0],
+    p.legend(legend, ('am=0.00357',), 'best')
+        
+    if save:
+        root = '/Users/atlytle/Dropbox/TeX_docs/stout_NPR/figs/'
+        p.savefig(root + 'ZS_prelim.pdf')
+    else:
+        p.show()      
+        
+def plot_LambdaV(data, save=False):
+    legend = ()
+    p.title('$\mathtt{Preliminary}$')
+    p.xlabel('$\mathtt{\mu \quad [GeV]}$')
+    x = [d.mu for d in data]
+   
+    y, s = zip(*[d.Lambda_V(0) for d in data])
+    dada = p.errorbar(x, y, s, fmt='ro--', mec='r', mfc='none', ms=8, mew=1)
+    legend += dada[0],
+    
+    y, s = zip(*[d.Lambda_V(1) for d in data])
+    dada = p.errorbar(x, y, s, fmt='bo--', mec='b', mfc='none', ms=8, mew=1)
+    legend += dada[0],
+
+    y, s = zip(*[d.Lambda_V(2) for d in data])
+    dada = p.errorbar(x, y, s, fmt='yo--', mec='y', mfc='none', ms=8, mew=1)
+    legend += dada[0],    
+    
+    y, s = zip(*[d.Lambda_V(3) for d in data])
+    dada = p.errorbar(x, y, s, fmt='go--', mec='g', mfc='none', ms=8, mew=1)
+    legend += dada[0],
+    
+    y, s = zip(*[d.Lambda_Vave() for d in data])
+    dada = p.errorbar(x, y, s, fmt='ko-', mfc='none', ms=8, mew=1)
+    legend += dada[0],
+    
+    p.legend(legend, ('g0', 'g1', 'g2', 'g3', 'ave'))
+    if save:
+        root = '/Users/atlytle/Dropbox/TeX_docs/stout_NPR/figs/'
+        p.savefig(root + 'LambdaV_prelim.pdf')
+    else:
+        p.show()   
+    
 def make_plots(data_list, save=False):
 
     # Vintage look.
     fontX = {'family':'monospace'}
     p.rc('font', **fontX)
 
-    # Plot Zq.
-    plot_Zq(data_list, save)
+#    # Plot Zq.
+#    plot_Zq(data_list, save)
+#    
+#    # Plot M.
+#    plot_M(data_list, save)
+#    
+#    # Plot Lambda_S,P.
+#    plot_LambdaSP(data_list, save)
     
-    # Plot M.
-    plot_M(data_list, save)
+    # Plot Z_S.
+    #plot_ZS(data_list, save)
     
-    # Plot Lambda_S,P.
-    plot_LambdaSP(data_list, save)
+    plot_LambdaV(data_list[0], save)
     
 if __name__ == "__main__":
     sys.exit(main())

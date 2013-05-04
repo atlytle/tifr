@@ -169,8 +169,13 @@ def bilinear_Z(prop, bilinear, ap, S, F):
 def Lambda_V(prop, bilinear, ap, muhat):
     '''Traced vector bilinear divided by tree-level value.'''
     S = 2**muhat
-    tr = bilinear_Lambda(prop, bilinear, S, 0)
+    # 1/2 comes from coding of vector operator.
+    tr = (1./2)*bilinear_Lambda(prop, bilinear, S, 0)
     return tr/np.cos(ap[muhat])
+
+def Lambda_Vave(prop, bl0, bl1, bl2, bl3, ap):
+    LV = lambda bl, muhat: Lambda_V(prop, bl, ap, muhat)
+    return (1/4.)*(LV(bl0,0) + LV(bl1,1) + LV(bl2,2) + LV(bl3,3))
                       
 def test():
     print 'calculating polespace naive'
