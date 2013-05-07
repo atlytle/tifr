@@ -1,4 +1,5 @@
 import optparse
+import sys
 import pylab as p
 import numpy as np
 from numpy import exp, cosh
@@ -114,17 +115,17 @@ def plot_effmass(cfnc, save=False, name=''):
     else:
         p.show()
         
-def parse_args():
+def parse_args(argv):
     parser = optparse.OptionParser()
     parser.add_option('-p', '--plot', action='store_true', dest='plot',
                       help = 'Plot results.')
     parser.add_option('-s', '--save', action='store_true', dest='save',
                       help = 'Save the plots.')
-    options, args = parser.parse_args()
+    options, args = parser.parse_args(argv)
     return options
     
-def main():
-    options = parse_args()
+def main(argv=None):
+    options = parse_args(argv)
     root = '/Users/atlytle/Dropbox/TIFR/figs/'
     
     ms = 0.0495
@@ -160,11 +161,17 @@ def main():
 #    plot_correlator(point.pscalar, options.save, root+'point_pscalar_corr.pdf')
 #    plot_correlator(wall.vector, options.save, root+'wall_vector_corr.pdf')
 #    plot_correlator(point.vector, options.save, root+'point_vector_corr.pdf')
+    plot_correlator(-point.a4a4, options.save, root+'point_a4a4_corr.pdf')
+    plot_correlator(-wall.a4a4, options.save, root+'wall_a4a4_corr.pdf')
 #    plot_effmass(wall.pscalar, options.save, root+'wall_pscalar_meff_naive.pdf')
 #    #plot_effmass2(wall.pscalar)
 #    plot_effmass(point.pscalar, options.save, root+'point_pscalar_meff_naive.pdf')
 #    plot_effmass(wall.vector, options.save, root+'wall_vector_meff_naive.pdf')
 #    plot_effmass(point.vector, options.save, root+'point_vector_meff_naive.pdf')
+    plot_effmass(wall.a4a4, options.save, root+'wall_a4a4_meff_naive.pdf')
+    plot_effmass(point.a4a4, options.save, root+'point_a4a4_meff_naive.pdf')
+    
+    return 0
     
 if __name__ == "__main__":
-    main()
+    sys.exit(main(sys.argv[1:]))
