@@ -156,21 +156,41 @@ def main(argv=None):
     print 'm=', p1[1], '+/-', err[1]
     print 'chisq=', chisq, '\n'
     
+    p1, err, chisq = fit_twopoint_cfuns(-wall.a4a4.real, 10, 40, wall.T)
+    print 'Wall-Point a4-a4:'
+    print 'A=', p1[0], '+/-', err[0]
+    print 'm=', p1[1], '+/-', err[1]
+    print 'chisq=', chisq, '\n'
+    
+    p1, err, chisq = fit_twopoint_cfuns(-point.a4a4.real, 10, 40, wall.T)
+    print 'Point-Point a4-a4:'    
+    print 'A=', p1[0], '+/-', err[0]
+    print 'm=', p1[1], '+/-', err[1]
+    print 'chisq=', chisq, '\n'
+    
     
 #    plot_correlator(wall.pscalar, options.save, root+'wall_pscalar_corr.pdf')
 #    plot_correlator(point.pscalar, options.save, root+'point_pscalar_corr.pdf')
 #    plot_correlator(wall.vector, options.save, root+'wall_vector_corr.pdf')
 #    plot_correlator(point.vector, options.save, root+'point_vector_corr.pdf')
-    plot_correlator(-point.a4a4, options.save, root+'point_a4a4_corr.pdf')
-    plot_correlator(-wall.a4a4, options.save, root+'wall_a4a4_corr.pdf')
+#    plot_correlator(-point.a4a4, options.save, root+'point_a4a4_corr.pdf')
+#    plot_correlator(-wall.a4a4, options.save, root+'wall_a4a4_corr.pdf')
+#    plot_correlator(point.psa4, options.save, root+'point_psa4_corr.pdf')
+#    plot_correlator(wall.psa4, options.save, root+'wall_psa4_corr.pdf')
+#    plot_correlator(point.a4ps, options.save, root+'point_a4ps_corr.pdf')
+#    plot_correlator(wall.a4ps, options.save, root+'wall_a4ps_corr.pdf')
 #    plot_effmass(wall.pscalar, options.save, root+'wall_pscalar_meff_naive.pdf')
 #    #plot_effmass2(wall.pscalar)
 #    plot_effmass(point.pscalar, options.save, root+'point_pscalar_meff_naive.pdf')
 #    plot_effmass(wall.vector, options.save, root+'wall_vector_meff_naive.pdf')
 #    plot_effmass(point.vector, options.save, root+'point_vector_meff_naive.pdf')
-    plot_effmass(wall.a4a4, options.save, root+'wall_a4a4_meff_naive.pdf')
-    plot_effmass(point.a4a4, options.save, root+'point_a4a4_meff_naive.pdf')
-    
+#    plot_effmass(wall.a4a4, options.save, root+'wall_a4a4_meff_naive.pdf')
+#    plot_effmass(point.a4a4, options.save, root+'point_a4a4_meff_naive.pdf')
+#    plot_effmass(wall.psa4, options.save, root+'wall_psa4_meff_naive.pdf')
+#    plot_effmass(point.psa4, options.save, root+'point_psa4_meff_naive.pdf')
+#    plot_effmass(wall.a4ps, options.save, root+'wall_a4ps_meff_naive.pdf')
+#    plot_effmass(point.a4ps, options.save, root+'point_a4ps_meff_naive.pdf')  
+  
     return 0
     
 if __name__ == "__main__":
