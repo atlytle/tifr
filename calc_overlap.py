@@ -19,7 +19,7 @@ def plot_correlator(cfnc, save=False, name=''):
     p.xlabel('$t$')
     p.ylabel('$C[t]$')
     p.yscale('log')
-    p.errorbar(range(96), ave.real,sigma.real, fmt='k-')
+    p.errorbar(range(len(ave)), ave.real,sigma.real, fmt='k-')
     if save:
         p.savefig(name)
     else:
@@ -97,7 +97,8 @@ def plot_effmass2(cfnc, save=False, name=''):
     p.figure()
     p.xlabel('$t$')
     p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
-    p.errorbar(range(len(ave)), ave, sigma, fmt='ko') # Fix.
+    print len(ave)
+    p.errorbar(range(len(ave)), ave, sigma, fmt='ko') # Fix. t-axis misaligned?
     if save:
         p.savefig(name)
     else:
@@ -109,7 +110,7 @@ def plot_effmass(cfnc, save=False, name=''):
     p.figure()
     p.xlabel('$t$')
     p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
-    p.errorbar(range(96), ave, sigma, fmt='ko')
+    p.errorbar(range(len(ave)), ave, sigma, fmt='ko')
     if save:
         p.savefig(name)
     else:
