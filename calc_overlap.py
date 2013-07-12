@@ -13,9 +13,11 @@ def JKsigma(cfnc):
     diffs = (ave-JKvals)*(ave-JKvals)
     return np.sqrt(np.sum(diffs, axis=0)*(1-1./N))
 
-def plot_correlator(cfnc, save=False, name=''):
+def plot_correlator(cfnc, save=False, name='', title=None):
     ave, sigma = cfnc[0], JKsigma(cfnc)
     p.figure()
+    if title is not None:
+        p.title(title)
     p.xlabel('$t$')
     p.ylabel('$C[t]$')
     p.yscale('log')
@@ -104,10 +106,12 @@ def plot_effmass2(cfnc, save=False, name=''):
     else:
         p.show()
     
-def plot_effmass(cfnc, save=False, name=''):
+def plot_effmass(cfnc, save=False, name='', title=None):
     effmass = naive_effmass(cfnc)
     ave, sigma = effmass[0], JKsigma(effmass)
     p.figure()
+    if title is not None:
+        p.title(title)
     p.xlabel('$t$')
     p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
     p.errorbar(range(len(ave)), ave, sigma, fmt='ko')
