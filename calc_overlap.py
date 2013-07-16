@@ -40,6 +40,7 @@ def fit_twopoint(xarr, yarr, earr, T=96.): #might add t1, t2 here
     # Calculate chi^2.
     diffs = [errfunc(p1, x, y, err) for x, y, err in zip(xarr, yarr, earr)]
     chisq = np.sum(np.power(diffs,2))  # Not normalized.
+    
     return p1, chisq
 
 def fit_twopoint_cfuns(cfnc, ti, tf, T):
@@ -53,12 +54,23 @@ def fit_twopoint_cfuns(cfnc, ti, tf, T):
             for yarr in cfnc]
     chisq = vals[0][1]  # Chisq on central value fit.
     vals = [v[0] for v in vals]  # Parameter values of fits.
-            
-    #print fit_twopoint(xarr[10:40], wall.pscalar.real[0][10:40], earr[10:40])
-    #print np.array(vals)[0]
-    #print JKsigma(np.array(vals))
     
     return vals[0], JKsigma(np.array(vals)), chisq
+    
+def fit_twopoint_cfunsJK(cfnc, ti, tf, T):
+    '''Fit two-point correlators to cosh form from t_initial to t_final. 
+    
+    More resampling friendly version:
+    Returns [(A, m)] for total-sample (0th element) and JK samples.
+    '''
+    xarr = np.array(range(T))
+    earr = JKsigma(cfnc)  # These are held fixed throughout fitting.
+    vals = [fit_twopoint(xarr[ti:tf], yarr[ti:tf], earr[ti:tf], T)
+            for yarr in cfnc]
+    vals = [v[0] for v in vals]  # Parameter values of fits.
+    
+    return vals
+    
     
 def fold(cfnc):
     '''Fold correlators around the mid-point.'''
