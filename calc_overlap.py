@@ -118,12 +118,14 @@ def plot_effmass2(cfnc, save=False, name=''):
     else:
         p.show()
     
-def plot_effmass(cfnc, save=False, name='', title=None):
+def plot_effmass(cfnc, save=False, name='', title=None, yrange=[]):
     effmass = naive_effmass(cfnc)
     ave, sigma = effmass[0], JKsigma(effmass)
     p.figure()
     if title is not None:
         p.title(title)
+    if yrange:
+        p.ylim(yrange)
     p.xlabel('$t$')
     p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
     p.errorbar(range(len(ave)), ave, sigma, fmt='ko')
