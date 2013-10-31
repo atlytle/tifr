@@ -37,13 +37,15 @@ def plot_fDs(results, save=False, saveas='', title=None, legend_spec='',
     
     legend = ()
     p.figure()
+    p.rc('text', usetex=True)
+    p.rc('font', size=18)
     if title is not None:
         p.title(title)
     if xlabel:
         p.xlabel(xlabel)
     if xlim:
         p.xlim(xlim)
-    p.ylabel('$f_{D_s}$ [MeV]')
+    p.ylabel('$f_{D_s} \mathrm{\,\, [MeV]}$')
     if ylim:
         p.ylim(ylim)
     p.errorbar(x, y, e, fmt='rs', ms=10),
@@ -129,12 +131,12 @@ def main(argv=None):
         
     plot_fDs(fDs, save=True, 
              saveas='/Users/atlytle/Desktop/fDs_c{0}.pdf'.format(mc), 
-             title='$am_c={0}$, $1/a = 2222$ MeV'.format(mc), xlabel='am_s',
+             title='$am_c={0}$, $1/a = 2222 \,\, \mathrm{{MeV}}$'.format(mc), xlabel='$am_s$',
              xlim=[.045,.050], ylim=[])
              
     plot_fratio(ratio, save=True, 
                 saveas='/Users/atlytle/Desktop/fratio_c{0}.pdf'.format(mc), 
-                title='$am_c={0}$, $1/a = 2222$ MeV'.format(mc), xlabel='am_s',
+                title='$am_c={0}$, $1/a = 2222 \,\, \mathrm{{MeV}}$'.format(mc), xlabel='$am_s$',
                 xlim=[.045,.050], ylim=[0.9,1.5])
 
     # ms = 0.048
@@ -178,12 +180,12 @@ def main(argv=None):
         
     plot_fDs(fDs, save=True, 
              saveas='/Users/atlytle/Desktop/fDs_s{0}.pdf'.format(ms), 
-             title='$am_s={0}$, $1/a = 2222$ MeV'.format(ms), xlabel='am_c',
+             title='$am_s={0}$, $1/a = 2222 \,\, \mathrm{{MeV}}$'.format(ms), xlabel='$am_c$',
              xlim=[], ylim=[225,260])
              
     plot_fratio(ratio, save=True, 
                 saveas='/Users/atlytle/Desktop/fratio_s{0}.pdf'.format(ms), 
-                title='$am_s={0}$, $1/a = 2222$ MeV'.format(ms), xlabel='am_c',
+                title='$am_s={0}$, $1/a = 2222 \,\, \mathrm{{MeV}}$'.format(ms), xlabel='$am_c$',
                 xlim=[], ylim=[0.9,1.5])
              
 
@@ -238,12 +240,12 @@ def main(argv=None):
         
     plot_fDs(fDs, save=True, 
              saveas='/Users/atlytle/Desktop/fDs_c{0}.pdf'.format(mc), 
-             title='$am_c={0}$, $1/a = 3390$ MeV'.format(mc), xlabel='am_s',
+             title='$am_c={0}$, $1/a = 3390 \,\, \mathrm{{MeV}}$'.format(mc), xlabel='$am_s$',
              xlim=[.026,.031], ylim=[210,270]) 
              
     plot_fratio(ratio[1:], save=True, 
                 saveas='/Users/atlytle/Desktop/fratio_c{0}.pdf'.format(mc), 
-                title='$am_c={0}$, $1/a = 3390$ MeV'.format(mc), xlabel='am_s',
+                title='$am_c={0}$, $1/a = 3390 \,\, \mathrm{{MeV}}$'.format(mc), xlabel='$am_s$',
                 xlim=[.0275,.0305], ylim=[0.9,1.5]) 
              
     # ms = 0.028         
@@ -288,12 +290,12 @@ def main(argv=None):
         
     plot_fDs(fDs, save=True, 
              saveas='/Users/atlytle/Desktop/fDs_s{0}.pdf'.format(ms), 
-             title='$am_s={0}$, $1/a = 3390$ MeV'.format(ms), xlabel='am_c',
+             title='$am_s={0}$, $1/a = 3390 \,\, \mathrm{{MeV}}$'.format(ms), xlabel='$am_c$',
              xlim=[.275,.305], ylim=[225,260])
              
     plot_fratio(ratio, save=True, 
                 saveas='/Users/atlytle/Desktop/fratio_s{0}.pdf'.format(ms), 
-                title='$am_s={0}$, $1/a = 3390$ MeV'.format(ms), xlabel='am_c',
+                title='$am_s={0}$, $1/a = 3390 \,\, \mathrm{{MeV}}$'.format(ms), xlabel='$am_c$',
                 xlim=[.275,.305], ylim=[0.9,1.5])
     
     return 0
