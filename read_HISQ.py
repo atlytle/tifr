@@ -13,29 +13,49 @@ def extract_t(clist, t):
         result += clist[i:i+nz*ny*nx*nc]
     assert len(result) == nc*nc*nz*ny*nx
     return result
+    
+def extract_t2(clist, t):
+# c t z y x
+    result = []
+    #print clist.shape
+    for c in range(3):
+        i = c*nt*nz*ny*nx*2 + t*nz*ny*nx*2
+        result =  np.hstack((result,clist[i:i+nz*ny*nx]))
+    assert len(result) == nc*nz*ny*nx
+    return result
+    
+def extract_t3(clist, t):
+# c t z y x
+    result = clist[t*nz*ny*nx*nc*2:t*nz*ny*nx*nc*2 + nz*ny*nx*nc*2]
+    assert len(result) == nc*nz*ny*nx*2
+    return result
         
                 
 def main(filename):
-    num_float = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
-    data = np.fromfile(filename, dtype='<f')
-    data = data[28:num_float+28]  # Discard header.
-    assert len(data) == num_float
-    print data[:10]
-    re = data[::2]
-    im = data[1::2]
-    c = map(complex, re, im)
-    assert len(c) == nx*ny*nz*nt*nc*nc
-#    for t in range(nt):
-#        tmp = extract_t(c, t)
-#        tmp = np.array(tmp)
-#        if t==0:
-#            i = 0
-#            for x in tmp:
-#                i += 1
-#                if abs(x) > 1: 
-#                    print x
-#                    print i
-#        print t, sum(np.square(np.abs(tmp)))
+    nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
+
+    with open(filename, "rb") as f:
+        # Read header.  This consists of 22 4byte values.
+        data = np.fromfile(f, dtype='<i', count=5)  # 5 floats.
+        timestamp = np.fromfile(f, dtype='<c', count=64)  # 16 floats.
+        order = np.fromfile(f, dtype='<i', count=1)  # 1 float.
+        print data
+        print timestamp
+        print order
+        # Read data and calculate pion correlator.
+        # Each chunk of data is separated by an int specifying source color,
+        # and two other 4byte values.  Thus there are 31 'extra' 4bytes.
+        result = np.zeros((nt))
+        for c in range(nc):
+            print 'color', np.fromfile(f, dtype='<i', count=1)
+            print 'some nums', np.fromfile(f, dtype='<f', count=2) 
+            x = np.fromfile(f, dtype='<f', count=nfloat/3)
+            # Add intermediate results to correlator.
+            # The sum is done in double precision.
+            for t in range(nt):
+                result[t] += np.square(extract_t3(x, t)).astype(np.float64).sum()
+        for t in range(nt):
+            print t, result[t]
          
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1]))
