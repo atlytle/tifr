@@ -29,15 +29,16 @@ def extract_t(filename, t):
     return np.sum(tmp)
 
 def pion_correlator(filename):
+    '''Construct pion correlator from propagator.'''
     correlator = np.zeros((nt))
     for t in range(nt):
         correlator[t] = extract_t(filename, t)
     return correlator
 
-def check_length(file):
+def check_length(filename):
     '''Ensure the file has the expected size.'''
-    if getsize(file) != ndouble*8:
-        raise Exception('{0} does not have the expected size.'.format(file))
+    if getsize(filename) != ndouble*8:
+        raise Exception('{0} does not have the expected size.'.format(filename))
 
 
 def main(files):
