@@ -22,12 +22,23 @@ def extract_t(filename, t):
     '''Extract the pion correlation function at time t from the propagator.'''
     tmp = []
     for i in range(2*nc*nc*ns*ns):
-        with open(filename, "rb") as f:  # Inefficient.
+        with open(filename, "rb") as f:  # Inefficient?
             f.seek(i*8*nt*V + 8*t*V, 0)
             data = np.fromfile(f, dtype='>d', count=V)
             tmp.append(np.sum(np.square(data)))
     return np.sum(tmp)
-
+    
+def extract_t2(filename, t):
+    '''Extract the pion correlation function at time t from the propagator.'''
+    tmp = []
+    with open(filename, "rb") as f:
+        f.seek(8*t*V, 0)
+        for i in range(2*nc*nc*ns*ns):
+            data = np.fromfile(f, dtype='>d', count=V)
+            tmp.append(np.sum(np.square(data)))
+            f.seek(8*(nt-1)*V, 1)
+    return np.sum(tmp)
+    
 def pion_correlator(filename):
     '''Construct pion correlator from propagator.'''
     correlator = np.zeros((nt))
