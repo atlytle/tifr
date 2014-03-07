@@ -7,6 +7,9 @@ from os.path import getsize
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
 nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
+
+def correlator_name(m):
+    return 'HHpion_l2464_m{0}_m{0}.npy'.format(m)
     
 def extract_t(data, t):
     "Extract chunk of data corresponding to timeslice t."
@@ -48,11 +51,32 @@ def pion_correlator(filename):
     return correlator
             
                 
-def main(filename):
-    correlator = pion_correlator(filename)
-    for t in range(nt):
-        print t, correlator[t]
+def main(files):
+    # Basic check on inputs.
+    head0, config0 = files[0].split('.')
+    mspec = head0.split('_')[-1]  # Mass specifier.
+    for f in files:
+        head, config = f.split('.')
+        if head != head0:
+            print "You might not want to combine these!"
+            return 1
+            
+    # Construct the block of correlators.
+    correlators = []
+    for f in files:
+        print f
+        correlators.append(pion_correlator(f))
+    correlators = np.array(correlators)
+    
+    # Basic checks on the output.
+    print correlators.shape
+    assert (len(files), nt) == correlators.shape
+    
+    # Write output.
+    np.save(correlator_name(mspec), correlators)
+    
+    return 0
          
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1]))
+    sys.exit(main(sys.argv[1:]))
 
