@@ -11,6 +11,10 @@ nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 def correlator_name(m):
     return 'HHpion_l2464_m{0}_m{0}.npy'.format(m)
     
+def propagator_name(m, config):
+    root = '/user2/atlytle/staggered'
+    return root + '/hisq{0}/prop_bin_hisq_{0}.{1}'.format
+    
 def extract_t(data, t):
     "Extract chunk of data corresponding to timeslice t."
     # Loop structure: t z y x c r/i
@@ -93,9 +97,10 @@ def pion_correlator2(file1, file2):
     f2.close()
     
     return correlator
-            
-                
-def main(files):
+    
+def convert_single_propagators(files):
+    "Construct pion correlators from individual propagators."
+    
     # Basic check on inputs.
     head0, config0 = files[0].split('.')
     mspec = head0.split('_')[-1]  # Mass specifier.
@@ -118,7 +123,21 @@ def main(files):
     
     # Write output.
     np.save(correlator_name(mspec), correlators)
+            
+                
+def main(files):
+    config_list = \
+    [1000, 1020, 1040, 1100, 1120, 1140, 1200, 1220, 1240, 1300, 1320, 1340,
+     1400, 1420, 1440, 1500, 1520, 1540, 1600, 1620, 1640, 1700, 1720, 1740,
+     1800, 1820, 1840, 1900, 1920, 1940, 2000, 2020, 2040, 2100, 2120, 2140,
+     2200, 2220, 2240, 2300, 2320, 2340, 2400, 2420, 2440, 2500, 2520, 2540,
+     2600, 2620, 2640, 2700, 2720, 2740, 2800, 2820, 2840, 2900, 2920, 2940,
+     3000, 3020, 3040, 3100, 3120, 3140, 3200, 3220, 3240, 3300, 3320, 3340,
+     3400, 3420, 3440, 3500, 3600, 3700, 3720, 3800, 3900]
+     
+     print len(config_list)
     
+  
     return 0
          
 if __name__ == "__main__":
