@@ -49,6 +49,50 @@ def pion_correlator(filename):
     f.close()
     
     return correlator
+    
+def convert_to_complex(data):
+    "Convert values to complex numbers."
+    assert len(data)%2 == 0
+    re, im = data[::2], data[1::2]
+    return np.array(map(complex, re, im))
+    
+def pion_correlator2(file1, file2):
+    "Construct pion correlator from two propagators."
+    
+    # Check file size.
+    if getsize(file1) != (nfloat+31)*4:
+        raise Exception('{0} does not have the expected size.'.format(file1))
+    if getsize(file2) != (nfloat+31)*4:
+        raise Exception('{0} does not have the expected size.'.format(file2))
+    
+    correlator = np.zeros((nt), dtype=complex)
+    
+    f1, f2 = open(file1, 'rb'), open(file2, 'rb')
+    
+    for f in f1, f2:
+        # Read headers.  This consists of 22 4byte values.
+        data = np.fromfile(f, dtype='<i', count=5)  # 5 floats.
+        timestamp = np.fromfile(f, dtype='<c', count=64)  # 16 floats.
+        order = np.fromfile(f, dtype='<i', count=1)  # 1 float.
+    
+    result = np.zeros((nt))
+    
+    for c in range(nc):
+        color1 = np.fromfile(f1, dtype='<i', count=1)
+        some_nums1 = np.fromfile(f1, dtype='<f', count=2) 
+        data1 = np.fromfile(f1, dtype='<f', count=nfloat/3)
+        color2 = np.fromfile(f2, dtype='<i', count=1)
+        some_nums2 = np.fromfile(f2, dtype='<f', count=2) 
+        data2 = np.fromfile(f2, dtype='<f', count=nfloat/3)
+        for t in range(nt):
+            c1 = convert_to_complex(extract_t(data1, t))
+            c2 = convert_to_complex(extract_t(data2, t))
+            correlator[t] += (c1*np.conj(c2)).astype(np.complex128).sum()
+            
+    f1.close()
+    f2.close()
+    
+    return correlator
             
                 
 def main(files):
