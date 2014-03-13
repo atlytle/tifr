@@ -50,6 +50,25 @@ def extract_t4(filename, t):
         ctmp = np.hstack((ctmp, chunk_c))
         
     return np.sum(ctmp*np.conj(ctmp))
+    
+def extract_t5(filename, t):
+    '''Extract the pion correlation function at time t from the propagator.'''
+    # Loop structure: s c r/i s c t z y x.
+    # Pluck out bits at t. Store in tmp.
+    tmp = np.array([])
+    for i in range(2*nc*nc*ns*ns):
+        with open(filename, "rb") as f:  # Inefficient?
+            f.seek(i*8*nt*V + 8*t*V, 0)
+            data = np.fromfile(f, dtype='>d', count=V)
+            tmp = np.hstack((tmp, data))
+    # Convert to complex numbers.  Store in ctmp.
+    ctmp = np.array([])
+    for chunk in np.hsplit(tmp, ns*nc):
+        chunk_re, chunk_im = np.hsplit(chunk, 2)
+        chunk_c = map(complex, chunk_re, chunk_im)
+        ctmp = np.hstack((ctmp, chunk_c))
+        
+    return ctmp
             
 def pion_correlator(filename):
     "Construct pion correlator from propagator."
@@ -67,9 +86,11 @@ def pion_correlator3(filename):
     
 def pion_correlator2(file1, file2):
     "Construct pion correlator from two propagators."
-    correlator = np.zeros((nt))
+    correlator = np.zeros((nt), dtype=complex)
     for t in range(nt):
-        correlator[t] = extract_t2(file1, file2, t)
+        nums1 = extract_t5(file1, t)
+        nums2 = extract_t5(file2, t)
+        correlator[t] = np.sum(nums1*np.conj(nums2))
     return correlator
         
 
@@ -104,17 +125,26 @@ def convert_single_propagators(files):
     np.save(correlator_name(m), correlators) 
 
 def main(files):
+    f1, f2 = files[0], files[1]
     
-    # Specify propagators to parse.
-    config_list = [1020, 1040]
-    flist1 = [propagator_name(config, 0.0745) for config in config_list]
-    flist2 = [propagator_name(config, 0.001) for config in config_list]
+    x = pion_correlator2(f1, f2)
+    t = 0
+    for c in x:
+        print t, c.real, c.imag
+        t += 1
     
-    # Construct the block of correlators.
-    correlators = []
-    for f1, f2 in zip(flist1, flist2):
-        print f1
-        print f2, '\n'
+    return 0
+    
+#    # Specify propagators to parse.
+#    config_list = [1020, 1040]
+#    flist1 = [propagator_name(config, 0.0745) for config in config_list]
+#    flist2 = [propagator_name(config, 0.001) for config in config_list]
+#    
+#    # Construct the block of correlators.
+#    correlators = []
+#    for f1, f2 in zip(flist1, flist2):
+#        print f1
+#        print f2, '\n'
 
     
     return 0
