@@ -10,10 +10,13 @@ nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 
 def correlator_name(m):
     return 'HHpion_l2464_m{0}_m{0}.npy'.format(m)
+
+def correlator_name2(m1, m2):
+    return 'HHpion_l2464_m{0}_m{1}.npy'.format(m1, m2)
     
 def propagator_name(m, config):
     root = '/user2/atlytle/staggered'
-    return root + '/hisq{0}/prop_bin_hisq_{0}.{1}'.format
+    return root + '/hisq_{0}/prop_bin_hisq_{0}.{1}'.format(m, config)
     
 def extract_t(data, t):
     "Extract chunk of data corresponding to timeslice t."
@@ -125,7 +128,9 @@ def convert_single_propagators(files):
     np.save(correlator_name(mspec), correlators)
             
                 
-def main(files):
+def main():
+
+    # Specify propagators to parse.
     config_list = \
     [1000, 1020, 1040, 1100, 1120, 1140, 1200, 1220, 1240, 1300, 1320, 1340,
      1400, 1420, 1440, 1500, 1520, 1540, 1600, 1620, 1640, 1700, 1720, 1740,
@@ -134,12 +139,27 @@ def main(files):
      2600, 2620, 2640, 2700, 2720, 2740, 2800, 2820, 2840, 2900, 2920, 2940,
      3000, 3020, 3040, 3100, 3120, 3140, 3200, 3220, 3240, 3300, 3320, 3340,
      3400, 3420, 3440, 3500, 3600, 3700, 3720, 3800, 3900]
-     
-     print len(config_list)
     
+    flist1 = [propagator_name('635', config) for config in config_list]
+    flist2 = [propagator_name('0509', config) for config in config_list]
+    
+    # Construct the block of correlators.
+    correlators = []
+    for f1, f2 in zip(flist1, flist2):
+        print f1
+        print f2, '\n'
+        correlators.append(pion_correlator2(f1, f2))
+    correlators = np.array(correlators)
+    
+    # Basic checks on the output.
+    print correlators.shape
+    assert (len(flist1), nt) == correlators.shape
+    
+    # Write output.
+    np.save(correlator_name2('635', '0509'), correlators)
   
     return 0
          
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(main())
 
