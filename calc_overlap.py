@@ -5,13 +5,7 @@ import numpy as np
 from numpy import exp, cosh
 from scipy.optimize import brentq, leastsq
 from parse_overlap import OverlapPoint, OverlapWall
-
-def JKsigma(cfnc):
-    '''Errorbars given correlator average and jackknife correlators.'''
-    ave, JKvals = cfnc[0], cfnc[1:]
-    N = len(JKvals)
-    diffs = (ave-JKvals)*(ave-JKvals)
-    return np.sqrt(np.sum(diffs, axis=0)*(1-1./N))
+from resample import JKsigma
 
 def plot_correlator(cfnc, save=False, name='', title=None):
     ave, sigma = cfnc[0], JKsigma(cfnc)

@@ -25,6 +25,13 @@ def JK_block(arr):
     "Average and jackknife averages of rows of a numpy array."
     ave = lambda x: np.average(x, axis=0)
     return np.vstack((ave(arr), map(ave, yield_JK_sample_np(arr))))
+    
+def JKsigma(cfnc):
+    '''Errorbars given correlator average and jackknife correlators.'''
+    ave, JKvals = cfnc[0], cfnc[1:]
+    N = len(JKvals)
+    diffs = (ave-JKvals)*(ave-JKvals)
+    return np.sqrt(np.sum(diffs, axis=0)*(1-1./N))
 
 def yield_bootstrap_sample_np(arr, Nboot):
     "Yield Nboot bootstrap samples from rows of a numpy array."
