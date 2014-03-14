@@ -3,7 +3,7 @@ import numpy as np
 from read_HISQ import correlator_name, correlator_name2
 from resample import JK_block
 from calc_overlap import plot_correlator, plot_effmass, fit_twopoint_cfuns
-from correlators import fit_double_cosh_osc
+from correlators import fit_cfuns_double_cosh_osc
 
 #root = ''
 #mlist = ['635', '0102', '0509']
@@ -32,7 +32,7 @@ print c_0509_0509.shape
 plot_correlator(c_0509_635JK.real)
 plot_effmass(c_0509_635JK.real)
 print fit_twopoint_cfuns(c_0509_0509JK.real/10000., 10, 22, 64)
-print fit_cfuns_double_cosh(c_0509_0509JK.real/10000., 10, 22, 64)
+print fit_cfuns_double_cosh_osc(c_0509_0509JK.real/10000., 10, 22, 64)
 
 
 

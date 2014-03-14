@@ -4,6 +4,9 @@ read_overlap.py -
 resampling.py -
     Generate resampling distributions.
 
+correlators.py -
+    Fitting routines for correlators.
+
 overlap_pion.py -
     Overlap on HISQ pion fits for delta_mix project.
 
@@ -12,3 +15,7 @@ read_HISQ.py -
 
 HISQ_pion.py -
     HISQ pion fits for delta_mix project.
+
+TO DO:
+Factor calc_overlap.py into resampling.py and correlators.py.
+Make correlator fitting abstract/generic?
