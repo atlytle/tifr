@@ -2,8 +2,24 @@ import numpy as np
 
 from read_HISQ import correlator_name, correlator_name2
 from resample import JK_block
-from calc_overlap import plot_correlator, plot_effmass, fit_twopoint_cfuns
-from correlators import fit_cfuns_double_cosh_osc
+from calc_overlap import plot_correlator, fit_twopoint_cfuns, #plot_effmass
+from correlators import fit_cfuns_double_cosh_osc, naive_effmass
+
+def plot_effmass(cfnc, save=False, name='', title=None, yrange=[]):
+    effmass = naive_effmass(cfnc)
+    ave, sigma = effmass[0], JKsigma(effmass)
+    p.figure()
+    if title is not None:
+        p.title(title)
+    if yrange:
+        p.ylim(yrange)
+    p.xlabel('$t$')
+    p.ylabel('$|\\frac{C[t+1]}{C[t]}|$')
+    p.errorbar(range(len(ave)), ave, sigma, fmt='ko')
+    if save:
+        p.savefig(name)
+    else:
+        p.show()
 
 #root = ''
 #mlist = ['635', '0102', '0509']
@@ -31,8 +47,8 @@ print c_0509_0509.shape
     
 plot_correlator(c_0509_635JK.real)
 plot_effmass(c_0509_635JK.real)
-print fit_twopoint_cfuns(c_0509_0509JK.real/10000., 10, 22, 64)
-print fit_cfuns_double_cosh_osc(c_0509_0509JK.real/10000., 10, 22, 64)
+print fit_twopoint_cfuns(c_0509_635JK.real/10000., 10, 22, 64)
+print fit_cfuns_double_cosh_osc(c_0509_635JK.real/10000., 10, 22, 64)
 
 
 

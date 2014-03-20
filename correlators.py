@@ -4,7 +4,7 @@ from scipy.optimize import brentq, leastsq
 
 from resample import JKsigma
 
-# why not make these generic and just pass in fitfunc?
+# why not make these generic and just pass in fitfunc? also need initial guess.
 def fit_double_cosh_osc(xarr, yarr, earr, T):
     "Fit (x,y,e) data to a double cosh form. Second cosh oscillates~(-1)^t."
     assert xarr.shape == yarr.shape == earr.shape
@@ -30,3 +30,10 @@ def fit_cfuns_double_cosh_osc(cfnc, ti, tf, T):
     pvals = np.array([v[0] for v in vals])  # Parameter values of fits.
     
     return pvals[0], JKsigma(pvals), chisq
+    
+def naive_effmass(cfnc, foldQ=False):
+    '''Compute naive effective mass of correlation functions.'''
+    if foldQ:
+        cfnc = fold(cfnc)
+    cplus = np.roll(cfnc, 1, axis=1).real
+    return np.abs(np.log(cfnc/cplus))

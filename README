@@ -18,4 +18,3 @@ HISQ_pion.py -
 
 TO DO:
 Factor calc_overlap.py into resampling.py and correlators.py.
-Make correlator fitting abstract/generic?
