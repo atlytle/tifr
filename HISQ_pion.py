@@ -2,8 +2,8 @@ import numpy as np
 
 from read_HISQ import correlator_name, correlator_name2
 from resample import JK_block
-from calc_overlap import plot_correlator, fit_twopoint_cfuns, #plot_effmass
-from correlators import fit_cfuns_double_cosh_osc, naive_effmass
+from calc_overlap import plot_correlator #fit_twopoint_cfuns,plot_effmass
+from correlators import fit_twopoint_cfuns, fit_cfuns_double_cosh_osc, naive_effmass
 
 def plot_effmass(cfnc, save=False, name='', title=None, yrange=[]):
     effmass = naive_effmass(cfnc)
