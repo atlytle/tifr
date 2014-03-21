@@ -1,6 +1,9 @@
 read_overlap.py - 
     Read overlap propagators, construct pion correlation functions, ..
 
+read_HISQ.py -
+    Read HISQ propagators, construct pion correlation functions, ..
+
 resampling.py -
     Generate resampling distributions.
 
@@ -9,9 +12,6 @@ correlators.py -
 
 overlap_pion.py -
     Overlap on HISQ pion fits for delta_mix project.
-
-read_HISQ.py -
-    Read HISQ propagators, construct pion correlation functions, ..
 
 HISQ_pion.py -
     HISQ pion fits for delta_mix project.
