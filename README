@@ -4,6 +4,9 @@ read_overlap.py -
 read_HISQ.py -
     Read HISQ propagators, construct pion correlation functions, ..
 
+read_mixed.py -
+    Pion correlators using HISQ and overlap propagators.
+
 resampling.py -
     Generate resampling distributions.
 
