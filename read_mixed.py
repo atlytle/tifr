@@ -4,7 +4,7 @@ import numpy as np
 
 from os.path import getsize
 
-from read_HISQ import convert_to_complex
+from read_HISQ import convert_to_complex, pion_correlator2
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
@@ -49,9 +49,9 @@ def extract_t_fromfile(filename, t):
         some_nums = np.fromfile(f, dtype='<f', count=2) 
         data = np.fromfile(f, dtype='<f', count=nfloat/3)
         tmp = extract_t(data, t) 
-        print tmp.shape   
+        #print tmp.shape   
         result = np.concatenate((result,tmp))
-        print result.shape
+        #print result.shape
         
     f.close()
     return convert_to_complex(result)
@@ -64,8 +64,18 @@ def main(argv=None):
                                               
     print new_indices[0:10]
     
-    propname = propagator_name('0509', 1000)
-    extract_t_fromfile(propname, 0)
+    prop1 = propagator_name('635', 1000)
+    prop2 = propagator_name('0509', 1000)
+    t1 = extract_t_fromfile(prop1, 0)
+    t2 = extract_t_fromfile(prop2, 0)
+    # Reorder.
+    t1_new = t1[new_indices]
+    t2_new = t2[new_indices]
+    
+    # Check consistency.
+    print pion_correlator2(prop1, prop2)[0]
+    print (t1*np.conj(t2)).astype(np.complex128).sum()
+    print (t1_new*np.conj(t2_new)).astype(np.complex128).sum()
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
