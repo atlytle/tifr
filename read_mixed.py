@@ -117,6 +117,33 @@ def extract_t_fromfile(filename, t):
         
     f.close()
     return convert_to_complex(result)
+    
+def reshape_HISQ(propdata):
+    "Reorder and add spin dofs."
+    assert propdata.shape == (nx*ny*nz*nc*nc,)
+    new_indices = [HISQ_index(c1,c2,z,y,x) 
+                   for x,y,z,c1,c2 in itertools.product(range(nx), range(ny),
+                                              range(nz), range(nc), range(nc))]
+    # Reorder.
+    tmp = propdata[new_indices]
+    # Add spin dofs.
+    tmp = np.kron(tmp, np.ones((ns*ns))).reshape(nx*ny*nz*nc*nc,ns,ns)
+    return tmp
+    
+def reshape_overlap(propdata):
+    "Reorder overlap data."
+    assert propdata.shape == (ns*nc*ns*nc*nx*ny*nz,)
+    new_indices = [overlap_index(s1,c1,s2,c2,z,y,x) for x,y,z,c1,c2,s1,s2 in
+                      itertools.product(range(nx), range(ny), range(nz), 
+                      range(nc), range(nc), range(ns), range(ns))]
+    tmp = propdata[new_indices]
+    return tmp.reshape((nx*ny*nz*nc*nc, ns, ns))
+    
+#def mixed_pion_correlator(overlap_prop, HISQ_prop):
+#    "Pion correlator from one overlap propagator and one HISQ propagator."
+#    t = 0
+#    tmpO = extract_t5(overlap_prop, t)
+#    tmpH = extract_t_fromfile(HISQ_prop, t)
 
 
 def main(argv=None):                                              
@@ -136,22 +163,17 @@ def main(argv=None):
     t_ov1 = extract_t5(prop_ov1, 0)
     t_ov2 = extract_t5(prop_ov2, 0)
     # Reorder.
-    t_ov_new1 = t_ov1[new_ov_indices]
-    t_ov_new1 = t_ov_new1.reshape((nx*ny*nz*nc*nc, ns, ns))
-    t_ov_new2 = t_ov2[new_ov_indices]
-    t_ov_new2 = t_ov_new2.reshape((nx*ny*nz*nc*nc, ns, ns))
+    t_ov_new1 = reshape_overlap(t_ov1)
+    t_ov_new2 = reshape_overlap(t_ov2)
     
     # Load HISQ propagators.
     prop1 = propagator_name('635', 1000)
     prop2 = propagator_name('0509', 1000)
     t1 = extract_t_fromfile(prop1, 0)
     t2 = extract_t_fromfile(prop2, 0)
-    # Reorder.
-    t1_new = t1[new_indices]
-    t2_new = t2[new_indices]
-    # Add spin dofs and make same shape as overlap and wilson_matrix.
-    t1_new = np.kron(t1_new, np.ones((ns*ns))).reshape(nx*ny*nz*nc*nc,ns,ns)
-    t2_new = np.kron(t2_new, np.ones((ns*ns))).reshape(nx*ny*nz*nc*nc,ns,ns)
+    # Reorder. Add spin dofs.
+    t1_new = reshape_HISQ(t1)
+    t2_new = reshape_HISQ(t2)
     # Multiply by Omega factors.
     t1_wils = wilson_matrix*t1_new
     t2_wils = wilson_matrix*t2_new
@@ -166,11 +188,10 @@ def main(argv=None):
     del t1, t2, t1_new, t2_new
     
     print '\nOverlap case:'
-    print pion_corr_ov(prop_ov1, prop_ov2)[0]  # Slow.
+    #print pion_corr_ov(prop_ov1, prop_ov2)[0]  # Slow.
     print (t_ov1*np.conj(t_ov2)).sum()
     print (t_ov_new1*np.conj(t_ov_new2)).sum()
     print t_ov_new1.shape
-    
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
