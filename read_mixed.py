@@ -4,25 +4,89 @@ import numpy as np
 
 from os.path import getsize
 
-from read_HISQ import convert_to_complex, pion_correlator2
+from read_HISQ import (convert_to_complex, propagator_name,
+                       pion_correlator2, extract_t)
+from read_overlap import extract_t5, pion_correlator2 as pion_corr_ov
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
+ns = 4
 nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 
-def propagator_name(m, config):
-    root = '/user2/atlytle/staggered'
-    return root + '/hisq_{0}/prop_bin_hisq_{0}.{1}'.format(m, config)
+# Define gamma matrices.  Need to CHECK overlap & hisq conventions.
+
+def hc(M):
+    "Hermitian conjugate."
+    return np.conjugate(np.transpose(M))
+
+
+# Kentucky format gamma matrices.
+# The overlap propagators are written in this convention.
+
+gx = np.array([[0, 0, 0, -1j],
+               [0, 0, -1j, 0],
+               [0, 1j, 0, 0],
+               [1j, 0, 0, 0]])
+
+gy = np.array([[0, 0, 0, 1],
+               [0, 0, -1, 0],
+               [0, -1, 0, 0],
+               [1, 0, 0, 0]])
+
+gz = np.array([[0, 0, -1j, 0],
+               [0, 0, 0, 1j],
+               [1j, 0, 0, 0],
+               [0, -1j, 0, 0]])
+
+gt = np.array([[0, 0, 1, 0],
+               [0, 0, 0, 1],
+               [1, 0, 0, 0],
+               [0, 1, 0, 0]])
+
+id4 = np.identity(4, dtype=complex)
+id3 = np.identity(3, dtype=complex)
+
+# Basic structure, details may be wrong!
+def Omega(x,y,z,t):
+    "Omega function used to wilsonize staggered propagator."
+    tmp = id4
+    if t % 2 == 0:
+        tmp = np.dot(gt, tmp)
+    if x % 2 == 0:
+        tmp = np.dot(gx, tmp)
+    if y % 2 == 0:
+        tmp = np.dot(gy, tmp)
+    if z % 2 == 0:
+        tmp = np.dot(gz, tmp)
+    return tmp
+        
+omega_matrix = np.array([Omega(x,y,z,0) for x,y,z,c1,c2 in 
+                          itertools.product(range(nx), range(ny), range(nz),
+                          range(nc), range(nc))])
+        
+def Wilsonizer(x,y,z,t):
+    "Factor to apply at each x,y,z,t,c1,c2 to convert staggered propagator."
+    OmegaL = Omega(x,y,z,t)
+    OmegaR = hc(Omega(0,0,0,0))  # This is very inefficient...unnecessary.
+    return reduce(np.dot, [OmegaL, id4, OmegaR])
+
+wilson_matrix = np.array([Wilsonizer(x,y,z,0) for x,y,z,c1,c2 in 
+                          itertools.product(range(nx), range(ny), range(nz),
+                          range(nc), range(nc))])
     
-def reorder_HISQ(c1, c2, z, y, x):
+def overlap_prop_loc(m, config):
+    root = '/user2/atlytle/overlap/L24T64/'
+    return root + 'l2464f211b600m0102m0509m635a.'\
+    '{0}.gf_hyp_prop_src_wall_t00_m{1:7f}'.format(config, m)
+    
+def HISQ_index(c1, c2, z, y, x):
+    "Index of elements in (complexified, single timeslice) HISQ prop data."
     return c1*nz*ny*nx*nc + z*ny*nx*nc + y*nx*nc + x*nc + c2
     
-def extract_t(data, t):
-    "Extract chunk of data corresponding to timeslice t."
-    # Loop structure: t z y x c r/i
-    result = data[t*nz*ny*nx*nc*2:t*nz*ny*nx*nc*2 + nz*ny*nx*nc*2]
-    assert len(result) == nz*ny*nx*nc*2
-    return result
+def overlap_index(s1, c1, s2, c2, z, y, x):
+    "Index of elements in (complexified, single timeslice) overlap prop data."
+    return s1*nc*ns*nc*nz*ny*nx + c1*ns*nc*nz*ny*nx + s2*nc*nz*ny*nx +\
+           c2*nz*ny*nx + z*ny*nx + y*nx + x
     
 def extract_t_fromfile(filename, t):
     '''Extract timeslice t from HISQ propagator.
@@ -49,21 +113,35 @@ def extract_t_fromfile(filename, t):
         some_nums = np.fromfile(f, dtype='<f', count=2) 
         data = np.fromfile(f, dtype='<f', count=nfloat/3)
         tmp = extract_t(data, t) 
-        #print tmp.shape   
         result = np.concatenate((result,tmp))
-        #print result.shape
         
     f.close()
     return convert_to_complex(result)
 
 
 def main(argv=None):                                              
-    new_indices = [reorder_HISQ(c1,c2,z,y,x) 
-                   for c1, c2, z, y, x in itertools.product(range(nc), range(nc),
-                                              range(nz), range(ny), range(nx))]
+
+    new_indices = [HISQ_index(c1,c2,z,y,x) 
+                   for x,y,z,c1,c2 in itertools.product(range(nx), range(ny),
+                                              range(nz), range(nc), range(nc))]
                                               
-    print new_indices[0:10]
+    new_ov_indices = [overlap_index(s1,c1,s2,c2,z,y,x) for x,y,z,c1,c2,s1,s2 in
+                      itertools.product(range(nx), range(ny), range(nz), 
+                      range(nc), range(nc), range(ns), range(ns))]
+                                              
     
+    # Load overlap propagators.
+    prop_ov1 = overlap_prop_loc(0.038, 1000)
+    prop_ov2 = overlap_prop_loc(0.0731, 1000)
+    t_ov1 = extract_t5(prop_ov1, 0)
+    t_ov2 = extract_t5(prop_ov2, 0)
+    # Reorder.
+    t_ov_new1 = t_ov1[new_ov_indices]
+    t_ov_new1 = t_ov_new1.reshape((nx*ny*nz*nc*nc, ns, ns))
+    t_ov_new2 = t_ov2[new_ov_indices]
+    t_ov_new2 = t_ov_new2.reshape((nx*ny*nz*nc*nc, ns, ns))
+    
+    # Load HISQ propagators.
     prop1 = propagator_name('635', 1000)
     prop2 = propagator_name('0509', 1000)
     t1 = extract_t_fromfile(prop1, 0)
@@ -71,11 +149,28 @@ def main(argv=None):
     # Reorder.
     t1_new = t1[new_indices]
     t2_new = t2[new_indices]
+    # Add spin dofs and make same shape as overlap and wilson_matrix.
+    t1_new = np.kron(t1_new, np.ones((ns*ns))).reshape(nx*ny*nz*nc*nc,ns,ns)
+    t2_new = np.kron(t2_new, np.ones((ns*ns))).reshape(nx*ny*nz*nc*nc,ns,ns)
+    # Multiply by Omega factors.
+    t1_wils = wilson_matrix*t1_new
+    t2_wils = wilson_matrix*t2_new
     
-    # Check consistency.
+    # Check consistency.  Note normalization factors of ns.
+    print 'HISQ case:'
     print pion_correlator2(prop1, prop2)[0]
     print (t1*np.conj(t2)).astype(np.complex128).sum()
-    print (t1_new*np.conj(t2_new)).astype(np.complex128).sum()
+    print (t1_new*np.conj(t2_new)).astype(np.complex128).sum()/(ns*ns)
+    print (t1_wils*np.conj(t2_wils)).astype(np.complex128).sum()/ns
+    print t1_new.shape
+    del t1, t2, t1_new, t2_new
+    
+    print '\nOverlap case:'
+    print pion_corr_ov(prop_ov1, prop_ov2)[0]  # Slow.
+    print (t_ov1*np.conj(t_ov2)).sum()
+    print (t_ov_new1*np.conj(t_ov_new2)).sum()
+    print t_ov_new1.shape
+    
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
