@@ -6,7 +6,7 @@ from os.path import getsize
 
 from read_HISQ import (convert_to_complex, propagator_name,
                        pion_correlator2, extract_t)
-from read_overlap import extract_t5, pion_correlator2 as pion_corr_ov
+from read_overlap import extract_t5
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
