@@ -33,12 +33,27 @@ def pion_correlator(propname):
     assert (np.conjugate(tmp2) == tmp1).all()  # For pion.
     return np.sum(tmp1*tmp2)
 
+def meson_correlator(propname, g1, g2):
+    '''General meson correlator.
 
+    Has the form Tr sum_x g1 g5 S^+ g5 g2 S.
+    '''
+    for t in range(nt):
+        tmp = extract_t5(propname, t)  # Extract timeslice t.
+        tmp = reshape_overlap(tmp)  # Shape is now (nx*ny*nz, 4, 4).
+        tmp1 = spinmult(g5, tmp)
+        tmp1 = spinmult(g1, tmp1)
+        tmp2 = np.conjugate(np.transpose(tmp, (0,2,1)))  # Transpose on spin.
+        tmp2 = spinmult(g5, tmp2)
+        tmp2 = spinmult(g2, tmp2)
+        tmp2 = np.transpose(tmp2, (0,2,1))
+        print t, np.sum(tmp1*tmp2)
 
 
 
 def main(filename):
     print pion_correlator(filename)
+    meson_correlator(filename, g5, g5)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1]))
