@@ -53,7 +53,7 @@ def meson_correlator(propname, g1, g2):
 
 def main(filename):
     print pion_correlator(filename)
-    meson_correlator(filename, g5, g5)
+    meson_correlator(filename, gx, gx)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1]))
