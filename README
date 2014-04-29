@@ -19,5 +19,8 @@ overlap_pion.py -
 HISQ_pion.py -
     HISQ pion fits for delta_mix project.
 
+data/ - 
+    Correlator files.
+
 TO DO:
 Factor calc_overlap.py into resampling.py and correlators.py.
