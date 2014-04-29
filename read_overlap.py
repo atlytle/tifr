@@ -52,7 +52,7 @@ def extract_t4(filename, t):
     return np.sum(ctmp*np.conj(ctmp))
     
 def extract_t5(filename, t):
-    '''Extract the pion correlation function at time t from the propagator.'''
+    '''Extract data at timeslice t from the propagator.'''
     # Loop structure: s c r/i s c t z y x.
     # Pluck out bits at t. Store in tmp.
     tmp = np.array([])
