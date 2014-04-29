@@ -22,7 +22,7 @@ def correlator_name(m):
 def correlator_name2(m1, m2):
     return 'OOpion_l2464__m{0:7f}_m{1:7f}.npy'.format(m1, m2)
 
-def extract_t(filename, t):
+def pion_t(filename, t):
     '''Extract the pion correlation function at time t from the propagator.'''
     tmp = []
     for i in range(2*nc*nc*ns*ns):
@@ -32,27 +32,11 @@ def extract_t(filename, t):
             tmp.append(np.sum(np.square(data)))
     return np.sum(tmp)
     
-def extract_t4(filename, t):
-    '''Extract the pion correlation function at time t from the propagator.'''
-    # Loop structure: s c r/i s c t z y x.
-    # Pluck out bits at t. Store in tmp.
-    tmp = np.array([])
-    for i in range(2*nc*nc*ns*ns):
-        with open(filename, "rb") as f:  # Inefficient?
-            f.seek(i*8*nt*V + 8*t*V, 0)
-            data = np.fromfile(f, dtype='>d', count=V)
-            tmp = np.hstack((tmp, data))
-    # Convert to complex numbers.  Store in ctmp.
-    ctmp = np.array([])
-    for chunk in np.hsplit(tmp, ns*nc):
-        chunk_re, chunk_im = np.hsplit(chunk, 2)
-        chunk_c = map(complex, chunk_re, chunk_im)
-        ctmp = np.hstack((ctmp, chunk_c))
-        
-    return np.sum(ctmp*np.conj(ctmp))
-    
 def extract_t5(filename, t):
-    '''Extract data at timeslice t from the propagator.'''
+    '''Extract data at timeslice t from the propagator.
+
+    Converts the raw data into complex numbers.
+    '''
     # Loop structure: s c r/i s c t z y x.
     # Pluck out bits at t. Store in tmp.
     tmp = np.array([])
@@ -74,14 +58,7 @@ def pion_correlator(filename):
     "Construct pion correlator from propagator."
     correlator = np.zeros((nt))
     for t in range(nt):
-        correlator[t] = extract_t(filename, t)
-    return correlator
-         
-def pion_correlator3(filename):
-    "Construct pion correlator from propagator."
-    correlator = np.zeros((nt))
-    for t in range(nt):
-        correlator[t] = extract_t4(filename, t)
+        correlator[t] = pion_t(filename, t)
     return correlator
     
 def pion_correlator2(file1, file2):
@@ -92,7 +69,6 @@ def pion_correlator2(file1, file2):
         nums2 = extract_t5(file2, t)
         correlator[t] = np.sum(nums1*np.conj(nums2))
     return correlator
-        
 
 def check_length(filename):
     '''Ensure the file has the expected size.'''
