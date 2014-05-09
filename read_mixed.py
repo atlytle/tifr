@@ -84,7 +84,7 @@ omega_matrix = np.array([Omega(x,y,z,0) for x,y,z,c1,c2 in
         
 def Wilsonizer(x,y,z,t):
     "Factor to apply at each x,y,z,t,c1,c2 to convert staggered propagator."
-    OmegaL = np.transpose(Omega2(x,y,z,t))
+    OmegaL = Omega(x,y,z,t)
     OmegaR = hc(Omega(0,0,0,0))  # This is very inefficient...unnecessary.
     return reduce(np.dot, [g5, OmegaL, id4, OmegaR, g5])
 
