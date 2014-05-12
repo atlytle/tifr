@@ -14,6 +14,11 @@ def out_name(m1, m2):
     root = "/Users/atlytle/Dropbox/pycode/tifr/data/"
     return root + "HOpion_l2464_m{0}_m{1}.npy".format(m1, m2)
 
+def rhox_name(m1, m2):
+    """Output rho_x numpy file."""
+    root = "/Users/atlytle/Dropbox/pycode/tifr/data/"
+    return root + "HOrhox_l2464_m{0}_m{1}.npy".format(m1, m2)
+
 def parse_pion(m1, m2, config):
     """Parse the pion data and convert to numpy array."""
     f = open(in_name(m1, m2, config), 'r')
@@ -23,6 +28,32 @@ def parse_pion(m1, m2, config):
     x = f.readline()
     while x:
         if re.match('correlator:\s+PION', x):
+            break
+        x = f.readline()
+
+    # Throw away header.
+    print x
+    for i in range(5):
+        print f.readline().strip()
+
+    result = []
+    for i in range(64):
+        t, r, im = f.readline().strip().split('\t')
+        result.append(complex(float(r), float(im)))        
+    
+    f.close()
+
+    return np.array(result)
+
+def parse_rhox(m1, m2, config):
+    """Parse the rho_x data and convert to numpy array."""
+    f = open(in_name(m1, m2, config), 'r')
+    
+    # Skip to the mixed rho correlator section.
+    # This assumes it is the first RHO entry.
+    x = f.readline()
+    while x:
+        if re.match('correlator:\s+RHO', x):
             break
         x = f.readline()
 
@@ -62,10 +93,10 @@ def main(argv):
         m = s.match(arg)
         config = m.group(3)
         print config
-        result.append(parse_pion(m1, m2, config))
+        result.append(parse_rhox(m1, m2, config))
     result = np.array(result)
     print result.shape
-    np.save(out_name(m1,m2), result)
+    np.save(rhox_name(m1,m2), result)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
