@@ -30,7 +30,34 @@ def fit_cfuns_double_cosh_osc(cfnc, ti, tf, T):
     pvals = np.array([v[0] for v in vals])  # Parameter values of fits.
     
     return pvals[0], JKsigma(pvals), chisq
+
+
+def fit_single_cosh_osc(xarr, yarr, earr, T):
+    "Fit (x, y, e) data to (A+(-B)^t) cosh form."
+    assert xarr.shape == yarr.shape == earr.shape
     
+    fitfunc = lambda p, x: (p[0]+((-1)**x)*p[1])*cosh(p[2]*(x-T/2.))
+    errfunc = lambda p, x, y, err: (y-fitfunc(p,x))/err
+    p0 = np.array([1.,1.,1.])  # Initial guess.
+    p1, success = leastsq(errfunc, p0, args=(xarr,yarr,earr), full_output=0)
+    
+    # Calculate chi^2.
+    diffs = [errfunc(p1, x, y, err) for x, y, err in zip(xarr, yarr, earr)]
+    chisq = np.sum(np.power(diffs,2))  # Not normalized.
+    
+    return p1, chisq
+
+def fit_cfuns(cfnc, ti, tf, T, fitfunc):
+    xarr = np.array(range(T))
+    earr = JKsigma(cfnc)
+    vals = [fitfunc(xarr[ti:tf], yarr[ti:tf], earr[ti:tf], T)
+            for yarr in cfnc]  # Results of fit on each sample.
+    chisq = vals[0][1]  # Chisq on central value fit.
+    pvals = np.array([v[0] for v in vals])  # Parameter values of fits.
+    
+    return pvals[0], JKsigma(pvals), chisq
+
+
 def fit_twopoint(xarr, yarr, earr, T=96.): #might add t1, t2 here
     '''Fit two-point correlator to the cosh form.'''
     assert xarr.shape == yarr.shape == earr.shape
