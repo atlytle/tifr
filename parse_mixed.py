@@ -13,6 +13,7 @@ def out_name(m1, m2):
     """Output numpy file."""
     root = "/Users/atlytle/Dropbox/pycode/tifr/data/"
     return root + "HOpion_l2464_m{0}_m{1}.npy".format(m1, m2)
+pion_name = out_name
 
 def rhox_name(m1, m2):
     """Output rho_x numpy file."""
@@ -150,6 +151,19 @@ def main(argv):
         assert m2 == m.group(2)
         
     # Construct numpy correlators.
+    
+    # Pion.
+    result = []
+    for arg in argv:
+        m = s.match(arg)
+        config = m.group(3)
+        print config
+        result.append(parse_pion(m1, m2, config))
+    result = np.array(result)
+    print result.shape
+    np.save(pion_name(m1,m2), result)
+
+    # Rho.
     result = []
     for arg in argv:
         m = s.match(arg)
@@ -160,6 +174,18 @@ def main(argv):
     print result.shape
     np.save(rho_name(m1,m2), result)
 
+    # Rho_x.
+    result = []
+    for arg in argv:
+        m = s.match(arg)
+        config = m.group(3)
+        print config
+        result.append(parse_rhox(m1, m2, config))
+    result = np.array(result)
+    print result.shape
+    np.save(rhox_name(m1,m2), result)
+
+    # Scalar.
     result = []
     for arg in argv:
         m = s.match(arg)
