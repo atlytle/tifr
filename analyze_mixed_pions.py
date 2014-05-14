@@ -62,7 +62,7 @@ def plot_correlator(cfnc, save=False, name='', title=None):
     else:
         p.show()
 
-def plot_masses(ps, rxs, rs, scs, save=False, name=''):
+def plot_masses(ps, rs, scs, save=False, name=''):
     p.figure
     p.rc('text', usetex=True)
     p.rc('font', size=18)
@@ -75,8 +75,8 @@ def plot_masses(ps, rxs, rs, scs, save=False, name=''):
     legend += p.errorbar(xs, ys, es, fmt='o')[0],
 
     # Rhoxs.
-    xs, ys, es = zip(*[r.pt for r in rxs])  # Unpack data.
-    legend += p.errorbar(xs, ys, es, fmt='o')[0],
+    #xs, ys, es = zip(*[r.pt for r in rxs])  # Unpack data.
+    #legend += p.errorbar(xs, ys, es, fmt='o')[0],
 
     # Rhos.
     xs, ys, es = zip(*[r.pt for r in rs])  # Unpack data.
@@ -86,7 +86,7 @@ def plot_masses(ps, rxs, rs, scs, save=False, name=''):
     xs, ys, es = zip(*[r.pt for r in scs])  # Unpack data.
     legend += p.errorbar(xs, ys, es, fmt='o')[0],
     
-    p.legend(legend, ('$\pi$', r'$\rho_x$', r'$\rho$', '$a_0$'), 'best')
+    p.legend(legend, ('$\pi$', r'$\rho$', '$a_0$'), 'best')
     if save:
         p.savefig(name)
     else:
@@ -96,10 +96,14 @@ fitfunc = lambda p, x: p[0]*cosh(p[1]*(x-32.)) + \
                           ((-1)**x)*p[2]*cosh(p[3]*(x-32.))
 
 def main(argv=None):
-    pions = [pion('0102', '0731'), pion('0509', '0731'), pion('635', '0731')]
-    rhoxs = [rhox('0102', '0731'), rhox('0509', '0731'), rhox('635', '0731')]
-    rhos = [rho('0102', '0731'), rho('0509', '0731')]
-    scalars = [scalar('0102', '0731'), scalar('0509', '0731')]
+    pions = [pion('0102', '0731'), pion('0509', '0731'), 
+             pion('0102', '0165'), pion('0509', '0165')]
+    rhoxs = [rhox('0102', '0731'), rhox('0509', '0731'),
+             rhox('0102', '0165'), rhox('0509', '0165')]
+    rhos = [rho('0102', '0731'), rho('0509', '0731'),
+            rho('0102', '0165'), rho('0509', '0165')]
+    scalars = [scalar('0102', '0731'), scalar('0509', '0731'),
+               scalar('0102', '0165'), scalar('0509', '0165')]
 
 
     fit = fit_cfuns_double_cosh_osc
@@ -128,29 +132,30 @@ def main(argv=None):
         print fit_cfuns(-r.JKcorrelators.real, 14, 29, 64, fit_single_cosh_osc)
         print ''
     '''
-    for p in pions[:2]:
+
+    for p in pions:
         f = fit_cfuns(p.JKcorrelators.real, 15, 29, 64, fit_single_cosh_osc)
         p.pt = (p.m1+p.m2, f[0][2], f[1][2])
-        print p.pt
+        #print p.pt
 
-    for r in rhoxs[:2]:
+    for r in rhoxs:
         f = fit_cfuns(r.JKcorrelators.real, 15, 29, 64, fit_single_cosh_osc)
         r.pt = (r.m1+r.m2, f[0][2], f[1][2])
-        print r.pt
+        #print r.pt
 
     for r in rhos:
         f = fit_cfuns(r.JKcorrelators.real, 15, 29, 64, fit_single_cosh_osc)
         r.pt = (r.m1+r.m2, f[0][2], f[1][2])
-        print r.pt
+        #print r.pt
 
     for r in scalars:
         f = fit_cfuns(r.JKcorrelators.real, 15, 29, 64, fit_single_cosh_osc)
         r.pt = (r.m1+r.m2, f[0][2], f[1][2])
-        print r.pt
+        #print r.pt
 
 
-    sname = root +'mixed_mpi.pdf'
-    plot_masses(pions[:2], rhoxs[:2], rhos, scalars, save=True, name=sname)
+    sname = root +'mixed_mpi2.pdf'
+    plot_masses(pions, rhos, scalars, save=False, name=sname)
     #print rhos[0].JKcorrelators.real[0]
     #print pions[0].JKcorrelators.real[0]
     #print fit(rhos[0].JKcorrelators.real, 10, 29, 64)
