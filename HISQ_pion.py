@@ -62,10 +62,11 @@ def plot_Msq_over_msum(dat, save=False, name=''):
 class pion:
     "Wrapper for pion correlation functions."
     def __init__(self, m1, m2):
+        self.root = '/Users/atlytle/Dropbox/pycode/tifr/data/'
         self.m1, self.m2 = float('0.'+m1), float('0.'+m2)  # Convert to float.
         hbarc = 0.197327  # [GeV fm]
         self.ainv = hbarc/0.122  # [GeV], cf p.16 of 1212.4768
-        self.correlators = np.load(correlator_name2(m1, m2))
+        self.correlators = np.load(self.root + correlator_name2(m1, m2))
         self.JKcorrelators = JK_block(self.correlators)
 
 def main(argv=None):
