@@ -5,7 +5,7 @@ import numpy as np
 import pylab as p
 from math import cosh
 
-from parse_mixed import out_name, rhox_name, rho_name, scalar_name
+from parse_mixed import pion_name, rhox_name, rho_name, scalar_name
 from resample import JK_block, JKsigma
 from correlators import fit_cfuns_double_cosh_osc, fit_cfuns, fit_single_cosh_osc
 #from calc_overlap import plot_correlator
@@ -19,32 +19,27 @@ class corr:
         self.ainv = hbarc/0.122  # [GeV], cf p.16 of 1212.4768
         self.correlators = np.load(self.name)
         self.JKcorrelators = JK_block(self.correlators)
-class pion:
+
+class pion(corr):
     "Wrapper for pion correlation functions."
     def __init__(self, m1, m2):
-        self.m1s, self.m2s = m1, m2
-        self.m1, self.m2 = float('0.'+m1), float('0.'+m2)  # Convert to float.
-        hbarc = 0.197327  # [GeV fm]
-        self.ainv = hbarc/0.122  # [GeV], cf p.16 of 1212.4768
-        self.correlators = np.load(out_name(m1, m2))
-        self.JKcorrelators = JK_block(self.correlators)
+        self.name = pion_name(m1, m2)
+        corr.__init__(self, m1, m2)
 
-class rhox:
+class rhox(corr):
     "Wrapper for rhox correlation functions."
     def __init__(self, m1, m2):
-        self.m1s, self.m2s = m1, m2
-        self.m1, self.m2 = float('0.'+m1), float('0.'+m2)  # Convert to float.
-        hbarc = 0.197327  # [GeV fm]
-        self.ainv = hbarc/0.122  # [GeV], cf p.16 of 1212.4768
-        self.correlators = np.load(rhox_name(m1, m2))
-        self.JKcorrelators = JK_block(self.correlators)
+        self.name = rhox_name(m1, m2)
+        corr.__init__(self, m1, m2)
 
 class rho(corr):
+    "Wrapper for rho correlation functions."
     def __init__(self, m1, m2):
         self.name = rho_name(m1, m2)
         corr.__init__(self, m1, m2)
 
 class scalar(corr):
+    "Wrapper for scalar correlation functions."
     def __init__(self, m1, m2):
         self.name = scalar_name(m1, m2)
         corr.__init__(self, m1, m2)
