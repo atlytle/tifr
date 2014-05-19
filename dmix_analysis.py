@@ -25,22 +25,30 @@ def main(argv):
         print p.m1, p.m2
         f = fit_cfuns(p.JKcorrelators.real/100000, 10, 22, 64, fit_single_cosh)
         p.fit = f
-        print p.fit
+        #print p.fit
         p.msq = (p.fit[0][1])**2
+        p.sig_msq = 2*p.fit[1][1] # Naive error.
     
     for p in HOpions:
         print p.m1, p.m2
         f = fit_cfuns(p.JKcorrelators.real, 15, 29, 64, fit_single_cosh_osc)
         p.fit = f
-        print p.fit
+        #print p.fit
         p.msq = (p.fit[0][2])**2
+        p.sig_msq = 2*p.fit[1][2]  # Naive error.
+
+    def nerror(sig1, sig2):
+      "Naive error on delta m^2"
+      return np.sqrt(sig1**2 + (sig2/2)**2)
 
     print ''
+    r = HHpions[0]
     for p in HOpions[:3]:
-        print p.m2, p.msq - HHpions[0].msq/2
+        print p.m2, p.msq - r.msq/2, nerror(p.sig_msq, r.sig_msq)
 
+    r = HHpions[1]
     for p in HOpions[3:]:
-        print p.m2, p.msq - HHpions[1].msq/2
+        print p.m2, p.msq - r.msq/2, nerror(p.sig_msq, r.sig_msq)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
