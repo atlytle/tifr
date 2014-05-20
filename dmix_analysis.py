@@ -27,7 +27,7 @@ def plot_dmsq(HOpions, HHpions, title=None, save=False, name=''):
     xr = np.linspace(0.0,0.079)
 
     # First data set.
-    hopions = HOpions[:3]
+    hopions = HOpions[:4]
     r = HHpions[0]
     xs = [q.m2 for q in hopions]
     ys = [(q.msq - r.msq/2) for q in hopions]
@@ -43,7 +43,7 @@ def plot_dmsq(HOpions, HHpions, title=None, save=False, name=''):
         x.set_markeredgewidth(2)
 
     # Second data set.
-    hopions = HOpions[3:]
+    hopions = HOpions[4:]
     r = HHpions[1]
     xs = [q.m2 for q in hopions]
     ys = [(q.msq - r.msq/2) for q in hopions]
@@ -76,10 +76,12 @@ def main(argv):
     HHpions = [HHpion('0102', '0102'), 
                HHpion('0509', '0509')]
 
-    HOpions = [HOpion('0102', '0165'), 
+    HOpions = [HOpion('0102', '0165'),
+               HOpion('0102', '0240'),
                HOpion('0102', '0380'), 
                HOpion('0102', '0731'), 
-               HOpion('0509', '0165'), 
+               HOpion('0509', '0165'),
+               HOpion('0509', '0240'),
                HOpion('0509', '0380'), 
                HOpion('0509', '0731')] 
 
@@ -103,11 +105,11 @@ def main(argv):
     # Results.
     print ''
     r = HHpions[0]
-    for p in HOpions[:3]:
+    for p in HOpions[:4]:
         print p.m2, p.msq - r.msq/2, nerror(p.sig_msq, r.sig_msq)
 
     r = HHpions[1]
-    for p in HOpions[3:]:
+    for p in HOpions[4:]:
         print p.m2, p.msq - r.msq/2, nerror(p.sig_msq, r.sig_msq)
 
     # Plot results.
