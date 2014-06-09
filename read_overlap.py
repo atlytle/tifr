@@ -31,7 +31,8 @@ def pion_t(filename, t):
             data = np.fromfile(f, dtype='>d', count=V)
             tmp.append(np.sum(np.square(data)))
     return np.sum(tmp)
-    
+
+ar = np.array
 def extract_t5(filename, t):
     '''Extract data at timeslice t from the propagator.
 
@@ -39,18 +40,23 @@ def extract_t5(filename, t):
     '''
     # Loop structure: s c r/i s c t z y x.
     # Pluck out bits at t. Store in tmp.
-    tmp = np.array([])
+    tmp = []
     for i in range(2*nc*nc*ns*ns):
         with open(filename, "rb") as f:  # Inefficient?
             f.seek(i*8*nt*V + 8*t*V, 0)
             data = np.fromfile(f, dtype='>d', count=V)
-            tmp = np.hstack((tmp, data))
+            tmp.append(data)
+    tmp = ar(tmp, dtype=np.float).reshape((-1,))
     # Convert to complex numbers.  Store in ctmp.
-    ctmp = np.array([])
+    ctmp_re = []
+    ctmp_im = []
     for chunk in np.hsplit(tmp, ns*nc):
         chunk_re, chunk_im = np.hsplit(chunk, 2)
-        chunk_c = map(complex, chunk_re, chunk_im)
-        ctmp = np.hstack((ctmp, chunk_c))
+        ctmp_re.append(chunk_re)
+        ctmp_im.append(chunk_im)
+    ctmp_re = ar(ctmp_re, dtype=np.float).reshape((-1,))
+    ctmp_im = ar(ctmp_im, dtype=np.float).reshape((-1,))
+    ctmp = ctmp_re + 1j*ctmp_im
         
     return ctmp
             
@@ -64,7 +70,8 @@ def pion_correlator(filename):
 def pion_correlator2(file1, file2):
     "Construct pion correlator from two propagators."
     correlator = np.zeros((nt), dtype=complex)
-    for t in range(nt):
+    for t in range(4):
+        print t
         nums1 = extract_t5(file1, t)
         nums2 = extract_t5(file2, t)
         correlator[t] = np.sum(nums1*np.conj(nums2))
