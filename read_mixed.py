@@ -68,13 +68,13 @@ def Omega(x,y,z,t):
 def Omega2(x,y,z,t):
     "Omega function used to wilsonize staggered propagator."
     tmp = id4
-    if z % 2 == 0:
+    if z % 2 == 1:
         tmp = np.dot(gz, tmp)
-    if y % 2 == 0:
+    if y % 2 == 1:
         tmp = np.dot(gy, tmp)
-    if x % 2 == 0:
+    if x % 2 == 1:
         tmp = np.dot(gx, tmp)
-    if t % 2 == 0:
+    if t % 2 == 1:
         tmp = np.dot(gt, tmp)
     return tmp
         
@@ -84,13 +84,18 @@ omega_matrix = np.array([Omega(x,y,z,0) for x,y,z,c1,c2 in
         
 def Wilsonizer(x,y,z,t):
     "Factor to apply at each x,y,z,t,c1,c2 to convert staggered propagator."
-    OmegaL = Omega(x,y,z,t)
-    OmegaR = hc(Omega(0,0,0,0))  # This is very inefficient...unnecessary.
-    return reduce(np.dot, [g5, OmegaL, id4, OmegaR, g5])
+    OmegaL = Omega2(x,y,z,t)
+    OmegaR = hc(Omega2(0,0,0,0))  # This is very inefficient...unnecessary.
+    return reduce(np.dot, [OmegaL, id4, OmegaR])
 
 wilson_matrix = np.array([Wilsonizer(x,y,z,0) for x,y,z,c1,c2 in 
                           itertools.product(range(nx), range(ny), range(nz),
                           range(nc), range(nc))])
+
+def wmatrix(t):
+    return np.array([Wilsonizer(x,y,z,t) for x,y,z,c1,c2 in 
+                    itertools.product(range(nx), range(ny), range(nz),
+                    range(nc), range(nc))])
     
 def overlap_prop_loc(m, config):
     root = '/user2/atlytle/overlap/L24T64/'
@@ -165,23 +170,28 @@ def mixed_pion_correlator(overlap_prop, HISQ_prop):
         tmpO = reshape_overlap(tmpO)
         tmpH = extract_t_fromfile(HISQ_prop, t)
         tmpH = reshape_HISQ(tmpH)
-        tmpH = wilson_matrix*tmpH
+        #tmpH = wilson_matrix*tmpH
+        tmpH = wmatrix(t)*tmpH
         print t, (tmpO*np.conj(tmpH)).astype(np.complex128).sum()
 
 def main(argv=None):                                                                                          
     
     # Load overlap propagators.
-    prop_ov1 = overlap_prop_loc(0.038, 1000)
+    #prop_ov1 = overlap_prop_loc(0.038, 1000)
     prop_ov2 = overlap_prop_loc(0.0731, 1000)
     
     # Load HISQ propagators.
-    prop1 = propagator_name('635', 1000)
+    #prop1 = propagator_name('635', 1000)
     prop2 = propagator_name('0509', 1000)
+
+    #t = 5
+    #tmpO = extract_t5(prop_ov2, t)
+    #tmpO = reshape_overlap(tmpO)
+    #tmpH = extract_t_fromfile(HISQ_prop, t)
+    #tmpH = reshape_HISQ(tmpH)
+    #tmpH = wilson_matrix*tmpH
     
     mixed_pion_correlator(prop_ov2, prop2)  # Slow!
-    #mixed_pion_correlator(prop_ov1, prop2)
-    #mixed_pion_correlator(prop_ov2, prop1)
-    #mixed_pion_correlator(prop_ov2, prop2)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
