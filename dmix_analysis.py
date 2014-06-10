@@ -66,6 +66,27 @@ def plot_dmsq(HOpions, HHpions, title=None, save=False, name=''):
     else:
         p.show()
 
+def plot_dmsq2(HHpions, H)pions, title=None, save=False, name=''):
+    "Plot m^2_{vs} - m^2_{vv}/2."
+    
+    # Set up figure.
+    fig = p.figure()
+    p.rc('text', usetex=True)
+    p.rc('font', size=16)
+    p.rc('axes', linewidth=0.5)
+    p.xlabel('$am_{v}$')
+    p.ylabel('$m^2_{vs} - m^2_{ss}/2$')
+    legend = ()
+
+    xr = np.linspace(0.0,0.079)
+
+    # First data set.
+
+    # NEED OO pions!!
+
+
+
+
 def nerror(sig1, sig2):
   "Naive error on delta m^2"
   return np.sqrt(sig1**2 + (sig2/2)**2)
@@ -84,6 +105,7 @@ def main(argv):
                HOpion('0509', '0240'),
                HOpion('0509', '0380'), 
                HOpion('0509', '0731')] 
+    OOpions = []
 
     # Calculate pion masses.
     for p in HHpions:
@@ -113,7 +135,7 @@ def main(argv):
         print p.m2, p.msq - r.msq/2, nerror(p.sig_msq, r.sig_msq)
 
     # Plot results.
-    plot_dmsq(HOpions, HHpions, save=True, name=sroot+'delta_msq.pdf')
+    plot_dmsq(HOpions, HHpions, save=False, name=sroot+'delta_msq.pdf')
 
     
     return 0
