@@ -55,12 +55,11 @@ def kaon_correlator(prop1, prop2):
     
     return (tmp1*tmp2).astype(np.complex128).sum()
 
-def meson_correlator(propname, g1, g2):
+def meson_correlator(propname, g1, g2, t):
     '''General meson correlator using Wilsonized staggered propagator.
 
     Has the form Tr sum_x g2 g5 S^+ g5 g1 S, where S is the Wilsonized prop.
     '''
-    t=0
     # Construct Wilsonized propagator at timeslice t.
     tmp = extract_t_fromfile(propname, t)
     tmp = reshape_HISQ(tmp)
@@ -81,8 +80,14 @@ def main():
     prop1 = propagator_name('635', 1000)
     prop2 = propagator_name('0509', 1000)
 
-    print pion_correlator(prop2)
-    meson_correlator(prop2, gx, gx)
+    #print pion_correlator(prop2)
+    print 'rhox'
+    meson_correlator(prop2, gx, gx, 0)
+    meson_correlator(prop2, gx, gx, 1)
+    print 'pion'
+    meson_correlator(prop2, g5, g5, 0)
+    meson_correlator(prop2, g5, g5, 1)
+
 
 if __name__ == "__main__":
     sys.exit(main())
