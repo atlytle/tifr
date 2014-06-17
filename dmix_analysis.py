@@ -5,6 +5,7 @@ import numpy as np
 import pylab as p
 
 from HISQ_pion import pion as HHpion
+from overlap_pion import pion as OOpion
 from analyze_mixed_pions import pion as HOpion
 from correlators import fit_cfuns, fit_single_cosh_osc
 from correlators import fit_twopoint as fit_single_cosh
@@ -37,6 +38,7 @@ def plot_dmsq(HOpions, HHpions, title=None, save=False, name=''):
     # Fit results.
     p.errorbar(xr, fit.a + fit.b*xr, fmt='-b')
     plot = p.errorbar([0], [fit.a], [fit.sig_a], fmt='ob', lw=1, clip_on=False)
+    print fit.a, fit.sig_a
     # Adjust error bar.
     for x in plot[1]:
         x.set_clip_on(False)
@@ -66,7 +68,7 @@ def plot_dmsq(HOpions, HHpions, title=None, save=False, name=''):
     else:
         p.show()
 
-def plot_dmsq2(HHpions, H)pions, title=None, save=False, name=''):
+def plot_dmsq2(HOpions, OOpions, title=None, save=False, name=''):
     "Plot m^2_{vs} - m^2_{vv}/2."
     
     # Set up figure.
@@ -74,13 +76,28 @@ def plot_dmsq2(HHpions, H)pions, title=None, save=False, name=''):
     p.rc('text', usetex=True)
     p.rc('font', size=16)
     p.rc('axes', linewidth=0.5)
-    p.xlabel('$am_{v}$')
-    p.ylabel('$m^2_{vs} - m^2_{ss}/2$')
+    p.xlabel('$am_{s}$')
+    p.ylabel('$m^2_{vs} - m^2_{vv}/2$')
     legend = ()
 
-    xr = np.linspace(0.0,0.079)
+    xr = np.linspace(0.0,0.06)
 
     # First data set.
+    hopions = [HOpions[1], HOpions[5]]
+    r = OOpions[3]
+    xs = [q.m1 for q in hopions]
+    ys = [(q.msq - r.msq/2) for q in hopions]
+    es = [nerror(q.sig_msq, r.sig_msq) for q in hopions]
+    fit = line_fit2(zip(xs,ys,es))
+    legend += p.errorbar(xs, ys, fmt='bo')[0],
+    # Fit results
+    p.errorbar(xr, fit.a+fit.b*xr, fmt='b-')
+    print fit.a, fit.sig_a
+
+    if save:
+        p.savefig(name)
+    else:
+        p.show()
 
     # NEED OO pions!!
 
@@ -105,9 +122,15 @@ def main(argv):
                HOpion('0509', '0240'),
                HOpion('0509', '0380'), 
                HOpion('0509', '0731')] 
-    OOpions = []
+    
+    OOpions = [OOpion(0.001, 0.001),
+               OOpion(0.009, 0.009),
+               OOpion(0.0165, 0.0165),
+               OOpion(0.024, 0.024),
+               OOpion(0.038, 0.038)]
 
     # Calculate pion masses.
+    print 'HH'
     for p in HHpions:
         print p.m1, p.m2
         f = fit_cfuns(p.JKcorrelators.real/100000, 10, 22, 64, fit_single_cosh)
@@ -116,6 +139,7 @@ def main(argv):
         p.msq = (p.fit[0][1])**2
         p.sig_msq = 2*p.fit[1][1] # Naive error.
     
+    print 'HO'
     for p in HOpions:
         print p.m1, p.m2
         f = fit_cfuns(p.JKcorrelators.real, 15, 29, 64, fit_single_cosh_osc)
@@ -123,6 +147,14 @@ def main(argv):
         #print p.fit
         p.msq = (p.fit[0][2])**2
         p.sig_msq = 2*p.fit[1][2]  # Naive error.
+
+    print 'OO'
+    for p in OOpions[1:]:
+        print p.m1, p.m2
+        f = fit_cfuns(p.JKcorrelators.real/10000, 8, 24, 64, fit_single_cosh)
+        p.fit = f
+        p.msq = (p.fit[0][1])**2
+        p.sig_msq = 2*p.fit[1][1] # Naive error.
 
     # Results.
     print ''
@@ -136,6 +168,7 @@ def main(argv):
 
     # Plot results.
     plot_dmsq(HOpions, HHpions, save=False, name=sroot+'delta_msq.pdf')
+    plot_dmsq2(HOpions, OOpions)
 
     
     return 0
