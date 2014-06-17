@@ -19,6 +19,10 @@ overlap_pion.py -
 HISQ_pion.py -
     HISQ pion fits for delta_mix project.
 
+parse_mixed(_txt).py -
+    Convert files from Subhasis into pion correlators.
+    Returns numpy(text) formatted data.
+
 data/ - 
     Correlator files.
 
