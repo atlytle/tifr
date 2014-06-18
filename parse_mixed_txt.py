@@ -9,6 +9,8 @@ import sys
 import re
 import numpy as np
 
+from resample import JK_block
+
 nt=64
 
 def in_name(m1, m2, config):
@@ -25,7 +27,7 @@ def out_name(m1, m2, config, type):
     elif type == 'ov':
         return root + type + "_pion_m{0}.{1}".format(m2, config)
     else:
-        raise Exception('Pion type not recognized.')
+        raise Exception('Pion type {0} not recognized.'.format(type))
 
 
 def parse_pion(m1, m2, config, type):
@@ -76,6 +78,26 @@ def read_pion(m1, m2, config_list, type):
         f.close()
     return np.array(result)
 
+class corr:
+    def __init__(self, m1, m2, config_list, type):
+        self.type = type
+        self.m1s, self.m2s = m1, m2
+        self.m1, self.m2 = float('0.'+m1), float('0.'+m2)  # Convert to float.
+        hbarc = 0.197327  # [GeV fm]
+        self.ainv = hbarc/0.122  # [GeV], cf p.16 of 1212.4768
+        self.correlators = read_pion(m1, m2, config_list, self.type)
+        self.JKcorrelators = JK_block(self.correlators)
+
+class HHpion(corr):
+    def __init__(self, m1, config_list):
+        self.type = 'hisq'
+        corr.__init__(self, m1, m1, config_list, self.type)
+
+class HOpion(corr):
+    def __init__(self, m1, m2, config_list):
+        self.type = 'mix'
+        corr.__init__(self, m1, m2, config_list, self.type)
+
 def main(argv):
     # # Extract params from filename.
     # s = re.compile('.+mix_ksm(\d+)_ovm(\d+)_corr\.(\d+)')
@@ -93,6 +115,7 @@ def main(argv):
     #     parse_pion(m1, m2, config, type='mix')
     #     parse_pion(m1, m2, config, type='hisq')
     #     parse_pion(m1, m2, config, type='ov')
+    
     config_list = [1000, 1020]
     p = read_pion('0102', '0380', config_list, 'mix')
     p2 = read_pion('0102', '0380', config_list, 'hisq')
@@ -100,6 +123,11 @@ def main(argv):
     print p.shape
     print p[1]
     print p2[1]
+
+    hh = HHpion('0102', config_list)
+    ho = HOpion('0102', '0380', config_list)
+    print hh.correlators[1]
+    print ho.correlators[1]
 
 
 
