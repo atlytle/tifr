@@ -7,10 +7,9 @@ jackknife fits.
 
 import sys
 import re
+import numpy as np
 
 nt=64
-
-ovpi_offset = 2626
 
 def in_name(m1, m2, config):
     """Input text file."""
@@ -60,30 +59,47 @@ def parse_pion(m1, m2, config, type):
 
     return result
 
+def read_pion(m1, m2, config_list, type):
+    """Read pion data from individual txt files.
+
+    Returns numpy correlator block ordered by config_list.
+    Note that type hisq/ov only uses mass m1/m2.
+    """
+    result = []
+    for config in config_list:
+        corr = []
+        f = open(out_name(m1, m2, config, type), 'r')
+        for i in range(nt):
+            t, re, im = f.readline().strip().split('\t')
+            corr.append(complex(float(re),float(im)))
+        result.append(corr)
+        f.close()
+    return np.array(result)
+
 def main(argv):
-    # Extract params from filename.
-    s = re.compile('.+mix_ksm(\d+)_ovm(\d+)_corr\.(\d+)')
+    # # Extract params from filename.
+    # s = re.compile('.+mix_ksm(\d+)_ovm(\d+)_corr\.(\d+)')
     
-    # Validate input glob.
-    for arg in argv:
-        m = s.match(arg)
-        assert m
-        #m1, m2, config = m.group(1), m.group(2), m.group(3)
-        #print m1, m2, config
-    for arg in argv:
-        m = s.match(arg)
-        m1, m2, config = m.group(1), m.group(2), m.group(3)
-        print m1, m2, config
-        parse_pion(m1, m2, config, type='mix')
-        parse_pion(m1, m2, config, type='hisq')
-        parse_pion(m1, m2, config, type='ov')
+    # # Validate input glob.
+    # for arg in argv:
+    #     m = s.match(arg)
+    #     assert m
+    #     #m1, m2, config = m.group(1), m.group(2), m.group(3)
+    #     #print m1, m2, config
+    # for arg in argv:
+    #     m = s.match(arg)
+    #     m1, m2, config = m.group(1), m.group(2), m.group(3)
+    #     print m1, m2, config
+    #     parse_pion(m1, m2, config, type='mix')
+    #     parse_pion(m1, m2, config, type='hisq')
+    #     parse_pion(m1, m2, config, type='ov')
+    config_list = [1000, 1020]
+    p = read_pion('0102', '0380', config_list, 'mix')
+    p2 = read_pion('0102', '0380', config_list, 'hisq')
 
-
-
-    #print in_name('0509', '0165', '1000')
-    #parse_pion('0509', '0165', '1000', type='mix')
-    #parse_pion('0509', '0165', '1000', type='hisq')
-    #parse_pion('0509', '0165', '1000', type='ov')
+    print p.shape
+    print p[1]
+    print p2[1]
 
 
 
