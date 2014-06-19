@@ -57,6 +57,16 @@ def fit_cfuns(cfnc, ti, tf, T, fitfunc):
     
     return pvals[0], JKsigma(pvals), chisq
 
+def fit_cfuns_through(cfnc, ti, tf, T, fitfunc):
+    """Version of fit_cfuns that returns all the resampled results."""
+    xarr = np.array(range(T))
+    earr = JKsigma(cfnc)
+    vals = [fitfunc(xarr[ti:tf], yarr[ti:tf], earr[ti:tf], T)
+            for yarr in cfnc]  # Results of fit on each sample.
+    chisq = vals[0][1]  # Chisq on central value fit.
+    pvals = np.array([v[0] for v in vals])  # Parameter values of fits.
+    
+    return pvals, chisq
 
 def fit_twopoint(xarr, yarr, earr, T=96.): #might add t1, t2 here
     '''Fit two-point correlator to the cosh form.'''
