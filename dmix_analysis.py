@@ -137,6 +137,7 @@ def main(argv):
         p.fit = f
         #print p.fit
         p.msq = (p.fit[0][1])**2
+        print p.msq
         p.sig_msq = 2*p.fit[1][1] # Naive error.
     
     print 'HO'
@@ -146,6 +147,7 @@ def main(argv):
         p.fit = f
         #print p.fit
         p.msq = (p.fit[0][2])**2
+        print p.msq
         p.sig_msq = 2*p.fit[1][2]  # Naive error.
 
     print 'OO'
@@ -168,7 +170,7 @@ def main(argv):
 
     # Plot results.
     plot_dmsq(HOpions, HHpions, save=False, name=sroot+'delta_msq.pdf')
-    plot_dmsq2(HOpions, OOpions)
+    #plot_dmsq2(HOpions, OOpions)
 
     
     return 0
