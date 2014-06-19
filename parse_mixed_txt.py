@@ -84,7 +84,8 @@ class corr:
         self.m1s, self.m2s = m1, m2
         self.m1, self.m2 = float('0.'+m1), float('0.'+m2)  # Convert to float.
         hbarc = 0.197327  # [GeV fm]
-        self.ainv = hbarc/0.122  # [GeV], cf p.16 of 1212.4768
+        self.ainv = hbarc/0.121  # [GeV], from p.16 of 1212.4768
+        self.r1oa = 2.575  # (17), r1/a from p.15 of 1212.4768
         self.correlators = read_pion(m1, m2, config_list, self.type)
         self.JKcorrelators = JK_block(self.correlators)
 
