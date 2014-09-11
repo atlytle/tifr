@@ -40,6 +40,7 @@ def meson_correlator(propname, g1, g2):
     '''
     corr = np.zeros((nt), dtype=complex)
     for t in range(nt):
+        print t
         tmp = extract_t5(propname, t)  # Extract timeslice t.
         tmp = reshape_overlap(tmp)  # Shape is now (nx*ny*nz, 4, 4).
         tmp1 = spinmult(g1, tmp)
@@ -49,14 +50,18 @@ def meson_correlator(propname, g1, g2):
         tmp2 = spinmult(g2, tmp2)
         tmp2 = np.transpose(tmp2, (0,2,1))
         corr[t] = np.sum(tmp1*tmp2)
+        print corr[t]
     return corr
 
 
 
 def main(filename):
     #print pion_correlator(filename)
+    print "rho_x"
     rho_x = meson_correlator(filename, gx, gx)
+    print "rho_y"
     rho_y = meson_correlator(filename, gy, gy)
+    print "rho_z"
     rho_z = meson_correlator(filename, gz, gz)
     rho = rho_x + rho_y + rho_z
     t=0

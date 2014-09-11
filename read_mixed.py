@@ -7,6 +7,7 @@ from os.path import getsize
 from read_HISQ import (convert_to_complex, propagator_name,
                        pion_correlator2, extract_t)
 from read_overlap import extract_t5
+#from overlap_meson import spinmult
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
@@ -17,7 +18,7 @@ nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 
 def hc(M):
     "Hermitian conjugate."
-    return np.conjugate(np.transpose(M))
+    return np.conjugate(np.transpose(M))  # Transpose on spin.
 
 
 # Kentucky format gamma matrices.
@@ -50,6 +51,12 @@ g5 = np.array([[0, 0, 1, 0],
 
 id4 = np.identity(4, dtype=complex)
 id3 = np.identity(3, dtype=complex)
+
+# Transformation from Kentucky to "Wilson"
+T = np.array([[0, -1, 0, 1],
+              [1, 0, -1, 0],
+              [0, 1, 0, 1],
+              [-1, 0, -1, 0]])/np.sqrt(2)
 
 # Basic structure, details may be wrong!
 def Omega(x,y,z,t):
@@ -84,18 +91,26 @@ omega_matrix = np.array([Omega(x,y,z,0) for x,y,z,c1,c2 in
         
 def Wilsonizer(x,y,z,t):
     "Factor to apply at each x,y,z,t,c1,c2 to convert staggered propagator."
-    OmegaL = Omega2(x,y,z,t)
-    OmegaR = hc(Omega2(0,0,0,0))  # This is very inefficient...unnecessary.
-    return reduce(np.dot, [OmegaL, id4, OmegaR])
-
-wilson_matrix = np.array([Wilsonizer(x,y,z,0) for x,y,z,c1,c2 in 
-                          itertools.product(range(nx), range(ny), range(nz),
-                          range(nc), range(nc))])
+    OmegaL = reduce(np.dot, [id4, Omega2(x,y,z,t), id4])  # hc[T] == -T.
+    #OmegaR = hc(Omega2(0,0,0,0))  # This is very inefficient...unnecessary.
+    #return reduce(np.dot, [OmegaL, id4, OmegaR])
+    return OmegaL
 
 def wmatrix(t):
     return np.array([Wilsonizer(x,y,z,t) for x,y,z,c1,c2 in 
                     itertools.product(range(nx), range(ny), range(nz),
                     range(nc), range(nc))])
+
+def odmatrix():
+    "Muliply off-diagonal elements by -1."
+    a = np.array([[1,-1,-1,-1],
+                  [-1,1,-1,-1],
+                  [-1,-1,1,-1],
+                  [-1,-1,-1,1]])
+    odmatrix = np.array([a for x,y,z,c1,c2 in
+                         itertools.product(range(nx), range(ny), range(nz),
+                         range(nc), range(nc))])
+    return odmatrix
     
 def overlap_prop_loc(m, config):
     root = '/user2/atlytle/overlap/L24T64/'
@@ -168,11 +183,19 @@ def mixed_pion_correlator(overlap_prop, HISQ_prop):
     for t in range(nt):
         tmpO = extract_t5(overlap_prop, t)
         tmpO = reshape_overlap(tmpO)
+        tmpO = odmatrix()*tmpO
         tmpH = extract_t_fromfile(HISQ_prop, t)
         tmpH = reshape_HISQ(tmpH)
-        #tmpH = wilson_matrix*tmpH
         tmpH = wmatrix(t)*tmpH
         print t, (tmpO*np.conj(tmpH)).astype(np.complex128).sum()
+
+def mixed_meson_correlator(overlap_prop, HISQ_prop):
+    "Unfinished."
+    for t in range(nt):
+        tmpH = extract_t_fromfile(HISQ_prop, t)
+        tmpH = reshape_HISQ(tmp)
+        tmpO = extract_t5(overlap_prop, t)
+        tmpO = reshape_overlap(tmpO) 
 
 def main(argv=None):                                                                                          
     

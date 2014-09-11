@@ -30,6 +30,7 @@ def pion_t(filename, t):
             f.seek(i*8*nt*V + 8*t*V, 0)
             data = np.fromfile(f, dtype='>d', count=V)
             tmp.append(np.sum(np.square(data)))
+    
     return np.sum(tmp)
 
 ar = np.array
@@ -64,13 +65,14 @@ def pion_correlator(filename):
     "Construct pion correlator from propagator."
     correlator = np.zeros((nt))
     for t in range(nt):
+        print t
         correlator[t] = pion_t(filename, t)
     return correlator
     
 def pion_correlator2(file1, file2):
     "Construct pion correlator from two propagators."
     correlator = np.zeros((nt), dtype=complex)
-    for t in range(4):
+    for t in range(nt):
         print t
         nums1 = extract_t5(file1, t)
         nums2 = extract_t5(file2, t)
@@ -96,6 +98,7 @@ def convert_single_propagators(files):
     # Construct the block of correlators.
     correlators = []
     for f in files:
+        print f
         correlators.append(pion_correlator(f))
     correlators = np.array(correlators)
 
@@ -106,32 +109,14 @@ def convert_single_propagators(files):
     # Write output.
     m = float('0.'+mass0)
     np.save(correlator_name(m), correlators) 
+    print correlators[0]
 
 def main(files):
-    f1, f2 = files[0], files[1]
-    
-    x = pion_correlator2(f1, f2)
-    t = 0
-    for c in x:
-        print t, c.real, c.imag
-        t += 1
-    
-    return 0
-    
-#    # Specify propagators to parse.
-#    config_list = [1020, 1040]
-#    flist1 = [propagator_name(config, 0.0745) for config in config_list]
-#    flist2 = [propagator_name(config, 0.001) for config in config_list]
-#    
-#    # Construct the block of correlators.
-#    correlators = []
-#    for f1, f2 in zip(flist1, flist2):
-#        print f1
-#        print f2, '\n'
-
-    
-    return 0
    
+    #print pion_correlator2(files[0], files[0])
+    convert_single_propagators(files)
+    
+    return 0
          
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

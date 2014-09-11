@@ -4,12 +4,38 @@ import numpy as np
 from read_HISQ import propagator_name, pion_correlator2
 from read_HISQ import pion_correlator as pion_corr
 from read_mixed import (gx, gy, gz, gt, g5, id4,
-                        reshape_HISQ, extract_t_fromfile, wilson_matrix)
+                        reshape_HISQ, extract_t_fromfile, wmatrix)
 from overlap_meson import spinmult
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
 ns = 4
+
+# MILC matrices.
+gxM = np.array([[0,0,0,1j],
+                [0,0,1j,0],
+                [0,-1j,0,0],
+                [-1j,0,0,0]])
+
+gyM = np.array([[0,0,0,-1],
+                [0,0,1,0],
+                [0,1,0,0],
+                [-1,0,0,0]])
+
+gzM = np.array([[0,0,1j,0],
+                [0,0,0,-1j],
+                [-1j,0,0,0],
+                [0,1j,0,0]])
+
+gtM = np.array([[0,0,1,0],
+                [0,0,0,1],
+                [1,0,0,0],
+                [0,1,0,0]])
+
+g5M = np.array([[1,0,0,0],
+                [0,1,0,0],
+                [0,0,-1,0],
+                [0,0,0,-1]])
 
 def pion_correlator(propname):
     '''HISQ pion correlator using Wilsonized propagator.
@@ -63,7 +89,7 @@ def meson_correlator(propname, g1, g2, t):
     # Construct Wilsonized propagator at timeslice t.
     tmp = extract_t_fromfile(propname, t)
     tmp = reshape_HISQ(tmp)
-    tmp = wilson_matrix*tmp
+    tmp = wmatrix(t)*tmp
 
     tmp1 = spinmult(g1, tmp)
     tmp1 = spinmult(g5, tmp1)
@@ -81,12 +107,12 @@ def main():
     prop2 = propagator_name('0509', 1000)
 
     #print pion_correlator(prop2)
-    print 'rhox'
-    meson_correlator(prop2, gx, gx, 0)
-    meson_correlator(prop2, gx, gx, 1)
-    print 'pion'
-    meson_correlator(prop2, g5, g5, 0)
-    meson_correlator(prop2, g5, g5, 1)
+    print 'rho_y'
+    for t in range(nt):
+        meson_correlator(prop2, gy, gy, t)
+    #print 'pion'
+    #meson_correlator(prop2, g5, g5, 0)
+    #meson_correlator(prop2, g5, g5, 1)
 
 
 if __name__ == "__main__":
