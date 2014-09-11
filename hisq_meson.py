@@ -1,41 +1,15 @@
 import sys
 import numpy as np
 
+from gammas import *
 from read_HISQ import propagator_name, pion_correlator2
 from read_HISQ import pion_correlator as pion_corr
-from read_mixed import (gx, gy, gz, gt, g5, id4,
-                        reshape_HISQ, extract_t_fromfile, wmatrix)
+from read_mixed import reshape_HISQ, extract_t_fromfile, wmatrix
 from overlap_meson import spinmult
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
 ns = 4
-
-# MILC matrices.
-gxM = np.array([[0,0,0,1j],
-                [0,0,1j,0],
-                [0,-1j,0,0],
-                [-1j,0,0,0]])
-
-gyM = np.array([[0,0,0,-1],
-                [0,0,1,0],
-                [0,1,0,0],
-                [-1,0,0,0]])
-
-gzM = np.array([[0,0,1j,0],
-                [0,0,0,-1j],
-                [-1j,0,0,0],
-                [0,1j,0,0]])
-
-gtM = np.array([[0,0,1,0],
-                [0,0,0,1],
-                [1,0,0,0],
-                [0,1,0,0]])
-
-g5M = np.array([[1,0,0,0],
-                [0,1,0,0],
-                [0,0,-1,0],
-                [0,0,0,-1]])
 
 def pion_correlator(propname):
     '''HISQ pion correlator using Wilsonized propagator.

@@ -1,7 +1,6 @@
 import sys
 import itertools
 import numpy as np
-
 from os.path import getsize
 
 from read_HISQ import (convert_to_complex, propagator_name,
@@ -14,49 +13,9 @@ nc = 3
 ns = 4
 nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 
-# Define gamma matrices.  Need to CHECK overlap & hisq conventions.
-
 def hc(M):
     "Hermitian conjugate."
-    return np.conjugate(np.transpose(M))  # Transpose on spin.
-
-
-# Kentucky format gamma matrices.
-# The overlap propagators are written in this convention.
-
-gx = np.array([[0, 0, 0, -1j],
-               [0, 0, -1j, 0],
-               [0, 1j, 0, 0],
-               [1j, 0, 0, 0]])
-
-gy = -np.array([[0, 0, 0, 1],
-               [0, 0, -1, 0],
-               [0, -1, 0, 0],
-               [1, 0, 0, 0]])
-
-gz = np.array([[0, 0, -1j, 0],
-               [0, 0, 0, 1j],
-               [1j, 0, 0, 0],
-               [0, -1j, 0, 0]])
-
-gt = np.array([[1, 0, 0, 0],
-               [0, 1, 0, 0],
-               [0, 0, -1, 0],
-               [0, 0, 0, -1]])
-               
-g5 = np.array([[0, 0, 1, 0],
-               [0, 0, 0, 1],
-               [1, 0, 0, 0],
-               [0, 1, 0, 0]])
-
-id4 = np.identity(4, dtype=complex)
-id3 = np.identity(3, dtype=complex)
-
-# Transformation from Kentucky to "Wilson"
-T = np.array([[0, -1, 0, 1],
-              [1, 0, -1, 0],
-              [0, 1, 0, 1],
-              [-1, 0, -1, 0]])/np.sqrt(2)
+    return np.conjugate(np.transpose(M)) 
 
 # Basic structure, details may be wrong!
 def Omega(x,y,z,t):
@@ -85,15 +44,10 @@ def Omega2(x,y,z,t):
         tmp = np.dot(gt, tmp)
     return tmp
         
-omega_matrix = np.array([Omega(x,y,z,0) for x,y,z,c1,c2 in 
-                          itertools.product(range(nx), range(ny), range(nz),
-                          range(nc), range(nc))])
-        
 def Wilsonizer(x,y,z,t):
     "Factor to apply at each x,y,z,t,c1,c2 to convert staggered propagator."
-    OmegaL = reduce(np.dot, [id4, Omega2(x,y,z,t), id4])  # hc[T] == -T.
-    #OmegaR = hc(Omega2(0,0,0,0))  # This is very inefficient...unnecessary.
-    #return reduce(np.dot, [OmegaL, id4, OmegaR])
+    OmegaL = Omega2(x,y,z,t)
+    # OmegaR = 1 so we do not include it here.
     return OmegaL
 
 def wmatrix(t):

@@ -1,7 +1,9 @@
 import sys
 import numpy as np
+
+from gammas import *
 from read_overlap import extract_t5
-from read_mixed import gx, gy, gz, gt, g5, id4, reshape_overlap
+from read_mixed import reshape_overlap
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
