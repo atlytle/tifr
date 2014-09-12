@@ -5,9 +5,6 @@ import itertools
 from gammas import *
 from read_overlap import extract_t5
 
-nx, ny, nz, nt = 24, 24, 24, 64
-nc = 3
-ns = 4
 nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 
 def overlap_index(s1, c1, s2, c2, z, y, x):

@@ -5,10 +5,8 @@ import numpy as np
 
 from os.path import getsize
 
-nx, ny, nz, nt = 24, 24, 24, 64
-V = nx*ny*nz  # Spatial volume.
-nc = 3  # N_c.
-ns = 4  # N_spin.
+from gammas import *
+
 ndouble = V*nt*nc*nc*ns*ns*2  # Number of 8byte numbers expected.
 
 def prop_name(m, config):

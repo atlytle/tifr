@@ -3,6 +3,12 @@
 import sys
 import numpy as np
 
+# Global variables used in dmix routines.
+nx, ny, nz, nt = 24, 24, 24, 64
+V = nx*ny*nz  # Spatial volume.
+nc = 3  # N_c.
+ns = 4  # N_spin.
+
 # Kentucky format gamma matrices.
 # The overlap propagators are written in this convention.
 

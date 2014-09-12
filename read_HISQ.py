@@ -1,12 +1,11 @@
 import sys
 import struct
-import itertools
 import numpy as np
 
 from os.path import getsize
 
-nx, ny, nz, nt = 24, 24, 24, 64
-nc = 3
+from gammas import *
+
 nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
 
 def correlator_name(m):
