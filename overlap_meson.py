@@ -1,14 +1,28 @@
 import sys
 import numpy as np
+import itertools
 
 from gammas import *
 from read_overlap import extract_t5
-from read_mixed import reshape_overlap
 
 nx, ny, nz, nt = 24, 24, 24, 64
 nc = 3
 ns = 4
 nfloat = nx*ny*nz*nt*nc*nc*2  # Number of 4byte numbers expected.
+
+def overlap_index(s1, c1, s2, c2, z, y, x):
+    "Index of elements in (complexified, single timeslice) overlap prop data."
+    return s1*nc*ns*nc*nz*ny*nx + c1*ns*nc*nz*ny*nx + s2*nc*nz*ny*nx +\
+           c2*nz*ny*nx + z*ny*nx + y*nx + x
+
+def reshape_overlap(propdata):
+    "Reorder overlap data."
+    assert propdata.shape == (ns*nc*ns*nc*nx*ny*nz,)
+    new_indices = [overlap_index(s1,c1,s2,c2,z,y,x) for x,y,z,c1,c2,s1,s2 in
+                      itertools.product(range(nx), range(ny), range(nz), 
+                      range(nc), range(nc), range(ns), range(ns))]
+    tmp = propdata[new_indices]
+    return tmp.reshape((nx*ny*nz*nc*nc, ns, ns))
 
 def spinmult(g, p):
     '''Multiply timeslice propagator by a gamma matrix.
@@ -42,7 +56,6 @@ def meson_correlator(propname, g1, g2):
     '''
     corr = np.zeros((nt), dtype=complex)
     for t in range(nt):
-        print t
         tmp = extract_t5(propname, t)  # Extract timeslice t.
         tmp = reshape_overlap(tmp)  # Shape is now (nx*ny*nz, 4, 4).
         tmp1 = spinmult(g1, tmp)
@@ -52,24 +65,34 @@ def meson_correlator(propname, g1, g2):
         tmp2 = spinmult(g2, tmp2)
         tmp2 = np.transpose(tmp2, (0,2,1))
         corr[t] = np.sum(tmp1*tmp2)
-        print corr[t]
+        print t, corr[t]
     return corr
 
 
 
 def main(filename):
     #print pion_correlator(filename)
-    print "rho_x"
-    rho_x = meson_correlator(filename, gx, gx)
-    print "rho_y"
-    rho_y = meson_correlator(filename, gy, gy)
-    print "rho_z"
-    rho_z = meson_correlator(filename, gz, gz)
-    rho = rho_x + rho_y + rho_z
-    t=0
-    for c in rho:
-        print t, c
-        t += 1
+    
+    print "pion"
+    pion = meson_correlator(filename, g5, g5)
+    #print "rho_x"
+    #rho_x = meson_correlator(filename, gx, gx)
+    
+    #print "rho_y"
+    #rho_y = meson_correlator(filename, gy, gy)
+    #print "rho_z"
+    #rho_z = meson_correlator(filename, gz, gz)
+    #rho = rho_x + rho_y + rho_z
+    
+    print "rho0"
+    gzgt = np.dot(gz, gt)
+    rho0 = meson_correlator(filename, gzgt, gzgt)
+    print "pvy"
+    g5gy = np.dot(g5, gy)
+    pvy = meson_correlator(filename, g5gy, g5gy)
+    print "B"
+    gxgy = np.dot(gx, gy) 
+    B = meson_correlator(filename, gxgy, gxgy)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1]))

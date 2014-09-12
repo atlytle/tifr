@@ -1,5 +1,6 @@
 import sys
 import struct
+import itertools
 import numpy as np
 
 from os.path import getsize
@@ -15,8 +16,11 @@ def correlator_name2(m1, m2):
     return 'HHpion_l2464_m{0}_m{1}.npy'.format(m1, m2)
     
 def propagator_name(m, config):
-    root = '/user2/atlytle/staggered'
-    return root + '/hisq_{0}/prop_bin_hisq_{0}.{1}'.format(m, config)
+    #root = '/user2/atlytle/staggered'
+    root = '/Users/atlytle/Dropbox/pycode/tifr/check_Subhasis/'
+    #return root + '/hisq_{0}/prop_bin_hisq_{0}.{1}'.format(m, config)
+    return root + 'prop_bin_hisq_{0}.{1}'.format(m, config)
+
     
 def extract_t(data, t):
     "Extract chunk of data corresponding to timeslice t."
@@ -126,6 +130,36 @@ def convert_single_propagators(files):
     
     # Write output.
     np.save(correlator_name(mspec), correlators)
+
+def extract_t_fromfile(filename, t):
+    '''Extract timeslice t from HISQ propagator.
+    
+    Return complex values ordered like c1 z y x c2.'''
+    
+    # Check file size.
+    if getsize(filename) != (nfloat+31)*4:
+        raise Exception('{0} does not have the expected size.'.format(filename))
+    
+    f = open(filename, 'rb')
+    
+    # Read header.  This consists of 22 4byte values.
+    data = np.fromfile(f, dtype='<i', count=5)  # 5 floats.
+    timestamp = np.fromfile(f, dtype='<c', count=64)  # 16 floats.
+    order = np.fromfile(f, dtype='<i', count=1)  # 1 float.
+    
+
+    
+    # Extract data at timeslice t for each color chunk.
+    result = np.array([])
+    for c in range(nc):
+        color = np.fromfile(f, dtype='<i', count=1)
+        some_nums = np.fromfile(f, dtype='<f', count=2) 
+        data = np.fromfile(f, dtype='<f', count=nfloat/3)
+        tmp = extract_t(data, t) 
+        result = np.concatenate((result,tmp))
+        
+    f.close()
+    return convert_to_complex(result)
             
                 
 def main():
