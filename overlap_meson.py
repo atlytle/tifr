@@ -29,6 +29,26 @@ def spinmult(g, p):
     tmp = np.tensordot(g, p, axes=([1,1]))
     return np.transpose(tmp, (1,0,2))
 
+def convert_to_aMILC(prop):
+    '''Convert the Kentucky-convention overlap timeslice propagator
+    to anti-MILC conventions.
+    '''
+    tmp = np.tensordot(T, prop, axes=([1,1]))
+    tmp = np.transpose(tmp, (1,0,2))
+    tmp = np.tensordot(tmp, hc(T), axes=([2,0]))
+    return tmp
+
+def smatrix():
+    "To muliply off-diagonal elements by -1."
+    a = np.array([[1,-1,-1,-1],
+                  [-1,1,-1,-1],
+                  [-1,-1,1,-1],
+                  [-1,-1,-1,1]])
+    smatrix = np.array([a for x,y,z,c1,c2 in
+                         itertools.product(range(nx), range(ny), range(nz),
+                         range(nc), range(nc))])
+    return smatrix
+
 def pion_correlator(propname):
     '''Overlap pion correlator using spin dofs.
 
@@ -52,9 +72,11 @@ def meson_correlator(propname, g1, g2):
     Has the form Tr sum_x g2 g5 S^+ g5 g1 S.
     '''
     corr = np.zeros((nt), dtype=complex)
+    #smat = smatrix()
     for t in range(nt):
         tmp = extract_t5(propname, t)  # Extract timeslice t.
         tmp = reshape_overlap(tmp)  # Shape is now (nx*ny*nz, 4, 4).
+        #tmp = smat*tmp
         tmp1 = spinmult(g1, tmp)
         tmp1 = spinmult(g5, tmp1)
         tmp2 = np.conjugate(np.transpose(tmp, (0,2,1)))  # Transpose on spin.
@@ -70,8 +92,9 @@ def meson_correlator(propname, g1, g2):
 def main(filename):
     #print pion_correlator(filename)
     
-    print "pion"
-    pion = meson_correlator(filename, g5, g5)
+    #print "pion"
+    #pion = meson_correlator(filename, g5, g5)
+    
     #print "rho_x"
     #rho_x = meson_correlator(filename, gx, gx)
     
