@@ -3,11 +3,17 @@
 import sys
 import numpy as np
 
+np.set_printoptions(precision=4)
+
 # Global variables used in dmix routines.
 nx, ny, nz, nt = 24, 24, 24, 64
 V = nx*ny*nz  # Spatial volume.
 nc = 3  # N_c.
 ns = 4  # N_spin.
+
+def hc(M):
+    "Hermitian conjugate."
+    return np.conjugate(np.transpose(M)) 
 
 # Kentucky format gamma matrices.
 # The overlap propagators are written in this convention.
@@ -73,3 +79,7 @@ g5M = np.array([[1,0,0,0],
                 [0,1,0,0],
                 [0,0,-1,0],
                 [0,0,0,-1]])
+
+if __name__ == "__main__":
+    for g, gM in zip([gx,gy,gz,gt], [gxM,gyM,gzM,gtM]):
+        print np.allclose(reduce(np.dot,[T,g,hc(T)]), -gM)
