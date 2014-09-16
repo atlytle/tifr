@@ -7,10 +7,6 @@ from read_HISQ import propagator_name, pion_correlator2, extract_t_fromfile
 from read_HISQ import pion_correlator as pion_corr
 from overlap_meson import spinmult
 
-nx, ny, nz, nt = 24, 24, 24, 64
-nc = 3
-ns = 4
-
 def HISQ_index(c1, c2, z, y, x):
     "Index of elements in (complexified, single timeslice) HISQ prop data."
     return c1*nz*ny*nx*nc + z*ny*nx*nc + y*nx*nc + x*nc + c2
@@ -53,6 +49,24 @@ def Omega2(x,y,z,t):
     if t % 2 == 1:
         tmp = np.dot(gt, tmp)
     return tmp
+
+def Omega2AM(x,y,z,t):
+    '''Omega function used to wilsonize staggered propagator.
+
+    anti-MILC conventions.
+    '''
+    tmp = id4
+    if z % 2 == 1:
+        tmp = np.dot(-gzM, tmp)
+    if y % 2 == 1:
+        tmp = np.dot(-gyM, tmp)
+    if x % 2 == 1:
+        tmp = np.dot(-gxM, tmp)
+    if t % 2 == 1:
+        tmp = np.dot(-gtM, tmp)
+
+    #tmp = reduce(np.dot, [g5M, tmp, g5M])
+    return tmp
         
 def Wilsonizer(x,y,z,t):
     "Factor to apply at each x,y,z,t,c1,c2 to convert staggered propagator."
@@ -62,6 +76,11 @@ def Wilsonizer(x,y,z,t):
 
 def wmatrix(t):
     return np.array([Wilsonizer(x,y,z,t) for x,y,z,c1,c2 in 
+                    itertools.product(range(nx), range(ny), range(nz),
+                    range(nc), range(nc))])
+
+def wmatrixAM(t):
+    return np.array([Omega2AM(x,y,z,t) for x,y,z,c1,c2 in 
                     itertools.product(range(nx), range(ny), range(nz),
                     range(nc), range(nc))])
 
@@ -117,17 +136,18 @@ def meson_correlator(propname, g1, g2, t):
     # Construct Wilsonized propagator at timeslice t.
     tmp = extract_t_fromfile(propname, t)
     tmp = reshape_HISQ(tmp)
-    tmp = wmatrix(t)*tmp
+    tmp = wmatrixAM(t)*tmp
 
     tmp1 = spinmult(g1, tmp)
-    tmp1 = spinmult(g5, tmp1)
+    tmp1 = spinmult(g5M, tmp1)
     
     tmp2 = np.conjugate(np.transpose(tmp, (0,2,1)))  # Transpose on spin.
-    tmp2 = spinmult(g5, tmp2)
+    tmp2 = spinmult(g5M, tmp2)
     tmp2 = spinmult(g2, tmp2)
     tmp2 = np.transpose(tmp2, (0,2,1))
     
     print t, (tmp1*tmp2).astype(np.complex128).sum()
+
 
 def main():
     # Load HISQ propagators.
@@ -137,7 +157,7 @@ def main():
     #print pion_correlator(prop2)
     print 'rho_y'
     for t in range(nt):
-        meson_correlator(prop2, gy, gy, t)
+        meson_correlator(prop2, gyM, gyM, t)
     #print 'pion'
     #meson_correlator(prop2, g5, g5, 0)
     #meson_correlator(prop2, g5, g5, 1)
