@@ -16,7 +16,7 @@ def correlator_name2(m1, m2):
     
 def propagator_name(m, config):
     #root = '/user2/atlytle/staggered'
-    root = '/Users/atlytle/Dropbox/pycode/tifr/check_Subhasis/'
+    root = '/Users/atlytle/Desktop/check_Subhasis/'
     #return root + '/hisq_{0}/prop_bin_hisq_{0}.{1}'.format(m, config)
     return root + 'prop_bin_hisq_{0}.{1}'.format(m, config)
 

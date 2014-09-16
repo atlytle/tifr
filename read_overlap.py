@@ -11,7 +11,7 @@ ndouble = V*nt*nc*nc*ns*ns*2  # Number of 8byte numbers expected.
 
 def prop_name(m, config):
     #root = '/user5/nilmani/projects/HISQ/quark_prop/L24T64/'
-    root = '/Users/atlytle/Dropbox/pycode/tifr/check_Subhasis/'
+    root = '/Users/atlytle/Desktop/check_Subhasis/'
     return root + 'l2464f211b600m0102m0509m635a.'\
     '{0}.gf_hyp_prop_src_wall_t00_m{1:7f}'.format(config, m)
 
